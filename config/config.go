@@ -16,7 +16,7 @@ func MyPort() (string, error) {
 }
 
 func ConnectDb() (*sql.DB, error) {
-	db, errdb := sql.Open("mysql", "root:1234@tcp(localhost:3306)/myemr")
+	db, errdb := sql.Open("mysql", "root:1234@tcp(localhost:3306)/myemr?parseTime=true")
 	if errdb != nil {
 		return nil, errdb
 	}

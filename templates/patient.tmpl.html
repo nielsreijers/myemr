@@ -1,0 +1,7 @@
+<html>
+    <body>
+        {{ range .Encounters }}
+            <a href="/encounter/{{ .Id }}">{{ .VisitDate }}</a><br>
+        {{ end }}
+    </body>
+</html>

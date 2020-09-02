@@ -1,0 +1,7 @@
+<html>
+    <body>
+        {{ range .Patients }}
+            <a href="/patient/{{ .Id }}">{{ .Name }}</a><br>
+        {{ end }}
+    </body>
+</html>
