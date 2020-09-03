@@ -1,10 +1,10 @@
 <html>
     <body>
-        <h2>{{ .login }}</h2>
+        <h2>{{ .Message }}</h2>
         <form>
-            Username: <input type="text" id="username">
-            Password: <input type="text" id="password">
-            <input type="submit" value="Submit">
+            Username: <input type="text" name="username"><br>
+            Password: <input type="password" name="password"><br>
+            <input type="submit" value="Submit" formmethod="POST">
         </form>
     </body>
 </html>

@@ -1,7 +1,9 @@
 <html>
     <body>
+        {{ template "header.tmpl.html" .CurrentUser }}
+        <h3>List of patients</h3>
         {{ range .Patients }}
-            <a href="/patient/{{ .Id }}">{{ .Name }}</a><br>
+            <a href="/patient/{{ .ID }}">{{ .Name }}</a><br>
         {{ end }}
     </body>
 </html>

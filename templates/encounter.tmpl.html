@@ -1,0 +1,14 @@
+<html>
+    <body>
+        {{ template "header.tmpl.html" .CurrentUser }}
+        <a href="/patientlist">Back to patient list</a><br>
+        <a href="/patient/{{ .Encounter.PatientID }}">Back to {{ .Patient.Name }}</a><br>
+        <h3>Encounter</h3>
+        Patient: {{ .Patient.Name }}<br>
+        User: {{ .User.Username }}<br>
+        Date: {{ .Encounter.VisitDate }}<br>
+        Field1: <textarea>{{ .Encounter.Field1 }}</textarea><br>
+        Field2: <textarea>{{ .Encounter.Field2 }}</textarea><br>
+        Field3: <textarea>{{ .Encounter.Field3 }}</textarea><br>
+    </body>
+</html>

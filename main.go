@@ -1,7 +1,6 @@
 package main
 
 import (
-	"database/sql"
 	"log"
 	"net/http"
 	"strconv"
@@ -9,10 +8,10 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 
 	Config "myemr/config"
 	Connect "myemr/connect"
+	DB "myemr/db"
 )
 
 func main() {
@@ -36,16 +35,14 @@ func main() {
 	v1.GET("/testconnect", Connect.TestConnect)
 
 	// UI
+	router.GET("/login", func(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login:"}) })
+	router.POST("/login", login)
+	router.GET("/logout", logout)
 	router.GET("/patientlist", patientlist)
 	router.GET("/patient/:id", patient)
+	router.GET("/encounter/:id", encounter)
 
 	router.Run(addr)
-}
-
-func getDbConnection() *sql.DB {
-	var db, errdb = Config.ConnectDb()
-	errorCheck(errdb)
-	return db
 }
 
 func errorCheck(err error) {
@@ -54,75 +51,90 @@ func errorCheck(err error) {
 	}
 }
 
-type User struct {
-	Id       int
-	Username string
-	Password string
-}
+func login(c *gin.Context) {
+	username, _ := c.GetPostForm("username")
+	password, _ := c.GetPostForm("password")
+	user, found := DB.GetUserByName(username)
 
-type Patient struct {
-	Id   int
-	Name string
-}
-
-type Encounter struct {
-	Id        int
-	VisitDate time.Time
-	Field1    string
-	Field2    string
-	Field3    string
-}
-
-func getPatients() []Patient {
-	db := getDbConnection()
-	defer db.Close()
-
-	// query all data
-	rows, err := db.Query("select id, name from patient")
-	errorCheck(err)
-
-	patients := []Patient{}
-	for rows.Next() {
-		var p = Patient{}
-		err = rows.Scan(&p.Id, &p.Name)
-		errorCheck(err)
-		patients = append(patients, p)
+	if !found || user.Password != password {
+		c.HTML(http.StatusOK, "login.tmpl.html", gin.H{
+			"Message": "Login failed",
+		})
+	} else {
+		var cookie http.Cookie
+		cookie.Name = "user"
+		cookie.Value = strconv.Itoa(user.ID)
+		http.SetCookie(c.Writer, &cookie)
+		c.Redirect(http.StatusSeeOther, "/patientlist")
 	}
-	return patients
 }
 
-func getEncounters(patientID int) []Encounter {
-	db := getDbConnection()
-	defer db.Close()
-
-	// query all data
-	rows, err := db.Query("select id, visitdate, field1, field2, field3 from encounter where user_id=1 and patient_id=?", patientID)
-	errorCheck(err)
-
-	encounters := []Encounter{}
-	for rows.Next() {
-		var e = Encounter{}
-		err = rows.Scan(&e.Id, &e.VisitDate, &e.Field1, &e.Field2, &e.Field3)
-		errorCheck(err)
-		encounters = append(encounters, e)
+func getCurrentUser(c *gin.Context) (DB.User, bool) {
+	cookie, err := c.Request.Cookie("user")
+	if err == nil && cookie.Value != "" {
+		userID, err := strconv.Atoi(cookie.Value)
+		if err == nil {
+			user, found := DB.GetUserByID(userID)
+			if found {
+				return user, true
+			}
+		}
 	}
-	return encounters
+	c.Redirect(http.StatusSeeOther, "/login")
+	return DB.User{}, false
+}
+
+func logout(c *gin.Context) {
+	cookie, err := c.Request.Cookie("user")
+	if err == nil {
+		cookie.Value = ""
+		http.SetCookie(c.Writer, cookie)
+	}
+	c.Redirect(http.StatusTemporaryRedirect, "/login")
 }
 
 func patientlist(c *gin.Context) {
-	patients := getPatients()
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		patients := DB.GetPatients()
 
-	c.HTML(http.StatusOK, "patientlist.tmpl.html", gin.H{
-		"Patients": patients,
-	})
+		c.HTML(http.StatusOK, "patientlist.tmpl.html", gin.H{
+			"CurrentUser": currentUser,
+			"Patients":    patients,
+		})
+	}
 }
 
 func patient(c *gin.Context) {
-	patientID, err := strconv.Atoi(c.Param("id"))
-	errorCheck(err)
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		patientID, err := strconv.Atoi(c.Param("id"))
+		errorCheck(err)
 
-	encounters := getEncounters(patientID)
-	c.HTML(http.StatusOK, "patient.tmpl.html", gin.H{
-		"Encounters": encounters,
-	})
+		patient := DB.GetPatientByID(patientID)
+		encounters := DB.GetEncountersByPatientID(patientID)
+		c.HTML(http.StatusOK, "patient.tmpl.html", gin.H{
+			"CurrentUser": currentUser,
+			"Patient":     patient,
+			"Encounters":  encounters,
+		})
+	}
+}
+
+func encounter(c *gin.Context) {
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		encounterID, err := strconv.Atoi(c.Param("id"))
+		errorCheck(err)
+
+		encounter := DB.GetEncounterByID(encounterID)
+		patient := DB.GetPatientByID(encounter.PatientID)
+		user, _ := DB.GetUserByID(encounter.UserID)
+		c.HTML(http.StatusOK, "encounter.tmpl.html", gin.H{
+			"CurrentUser": currentUser,
+			"Encounter":   encounter,
+			"Patient":     patient,
+			"User":        user,
+		})
+	}
 }
