@@ -1,7 +1,10 @@
 package logger
 
 import (
+	"encoding/base64"
 	"encoding/json"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -10,25 +13,27 @@ import (
 
 	DB "myemr/db"
 	H "myemr/helpers"
+	L "myemr/login"
 )
 
 type LoggerTrace struct {
 	gorm.Model
-	UserID uint      `gorm:"not null"`
-	User   DB.User   ``
-	Time   time.Time `gorm:"unique;not null"`
-	Type   string
-	Data   string
-	X      int
-	Y      int
+	UserID   uint      `gorm:"not null"`
+	User     DB.User   ``
+	Time     time.Time `gorm:"not null"`
+	UnixTime int64     `gorm:"not null"`
+	Type     string
+	Data     string
+	X        int
+	Y        int
 }
 
 type KeyLoggerEvent struct {
-	Time int64
-	Type string
-	Data string
-	X    int
-	Y    int
+	UnixTime int64
+	Type     string
+	Data     string
+	X        int
+	Y        int
 }
 
 func AutoMigrate() {
@@ -37,50 +42,43 @@ func AutoMigrate() {
 }
 
 func KeyLogger(c *gin.Context) {
-	cookie, err := c.Request.Cookie("user")
-	if err == nil && cookie.Value != "" {
-		userID, err := H.Atou(cookie.Value)
-		if err == nil {
-			body, err := c.GetRawData()
-			H.ErrorCheck(err)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	if isLoggedIn {
+		body, err := c.GetRawData()
+		H.ErrorCheck(err)
 
-			var events []KeyLoggerEvent
-			err = json.Unmarshal([]byte(body), &events)
-			H.ErrorCheck(err)
+		var events []LoggerTrace
+		err = json.Unmarshal([]byte(body), &events)
+		H.ErrorCheck(err)
 
-			records := make([]LoggerTrace, len(events))
-			for i, event := range events {
-				records[i].UserID = userID
-				sec := event.Time / 1000
-				nsec := (event.Time % 1000) * 1000 * 1000
-				time := time.Unix(sec, nsec)
-				records[i].Time = time
-				records[i].Type = event.Type
-				records[i].Data = event.Data
-				records[i].X = event.X
-				records[i].Y = event.Y
-			}
-
-			db := DB.GetDbConnection()
-			db.Create(&records)
+		for i, event := range events {
+			events[i].UserID = currentUser.ID
+			sec := event.UnixTime / 1000
+			nsec := (event.UnixTime % 1000) * 1000 * 1000
+			time := time.Unix(sec, nsec)
+			events[i].Time = time
 		}
+
+		db := DB.GetDbConnection()
+		db.Create(&events)
 	}
 }
 
 func VideoLogger(c *gin.Context) {
-	// <?php
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	if isLoggedIn {
+		starttime, _ := c.GetPostForm("starttime")
+		base64data, _ := c.GetPostForm("base64data")
 
-	// $filename = $_POST['filename'];
-	// $binarydata = base64_decode($_POST['binarydata']);
+		binarydata, err := base64.StdEncoding.DecodeString(base64data)
+		filename := fmt.Sprintf("videos/%s-%s.webm", currentUser.Username, starttime)
+		H.ErrorCheck(err)
 
-	// if (!empty($binarydata)) {
-	// 	// log to file
-	// 	$file = fopen('videos/' . $filename, 'a+');
-	// 	fwrite($file, $binarydata);
-	// 	fclose($file);
-	// 	print("Successfully Logged to " . $filename);
-	// } else {
-	// 	print("EntiyBody is empty.");
-	// }
-	// ?>
+		f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+		H.ErrorCheck(err)
+		defer f.Close()
+
+		_, err = f.Write(binarydata)
+		H.ErrorCheck(err)
+	}
 }

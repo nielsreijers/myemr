@@ -24,7 +24,7 @@ if (window.location.href.indexOf("login.php") == -1) {
               y = evt.clientY;
               break;
       }
-      aa_events.push({ time: Date.now(), type: type, data: data, x: x, y: y });
+      aa_events.push({ unixtime: Date.now(), type: type, data: data, x: x, y: y });
   }
   window.addEventListener("keydown", aa_logEvent);
   window.addEventListener("keyup", aa_logEvent);

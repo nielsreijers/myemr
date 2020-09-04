@@ -13,6 +13,7 @@ import (
 	DB "myemr/db"
 	H "myemr/helpers"
 	Logger "myemr/logger"
+	L "myemr/login"
 )
 
 func main() {
@@ -53,26 +54,11 @@ func main() {
 	// Logger
 	router.Static("/assets", "./assets")
 	router.POST("/logger/keylogger", Logger.KeyLogger)
-	// router.POST("/logger/videologger", Logger.VideoLogger)
+	router.POST("/logger/videologger", Logger.VideoLogger)
 
 	Logger.AutoMigrate()
 
 	router.Run(addr)
-}
-
-func getCurrentUser(c *gin.Context) (DB.User, bool) {
-	cookie, err := c.Request.Cookie("user")
-	if err == nil && cookie.Value != "" {
-		userID, err := H.Atou(cookie.Value)
-		if err == nil {
-			user, found := DB.GetUserByID(userID)
-			if found {
-				return user, true
-			}
-		}
-	}
-	c.Redirect(http.StatusSeeOther, "/login")
-	return DB.User{}, false
 }
 
 func login(c *gin.Context) {
@@ -103,7 +89,7 @@ func logout(c *gin.Context) {
 }
 
 func patientlist(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		patients := DB.GetPatients()
 
@@ -115,7 +101,7 @@ func patientlist(c *gin.Context) {
 }
 
 func addPatient(c *gin.Context) {
-	_, isLoggedIn := getCurrentUser(c)
+	_, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		name, _ := c.GetPostForm("name")
 		patientID := DB.AddPatient(name)
@@ -125,7 +111,7 @@ func addPatient(c *gin.Context) {
 }
 
 func patient(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		patientID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -141,7 +127,7 @@ func patient(c *gin.Context) {
 }
 
 func addEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		patientIDString, found := c.GetPostForm("patientID")
 		if found {
@@ -157,7 +143,7 @@ func addEncounter(c *gin.Context) {
 }
 
 func encounter(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -175,7 +161,7 @@ func encounter(c *gin.Context) {
 }
 
 func editEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -197,7 +183,7 @@ func editEncounter(c *gin.Context) {
 }
 
 func saveEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -218,7 +204,7 @@ func saveEncounter(c *gin.Context) {
 }
 
 func deleteEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := getCurrentUser(c)
+	currentUser, isLoggedIn := L.GetCurrentUser(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)

@@ -85,10 +85,10 @@ function aa_startRecording() {
             base64encoded = base64encoded.substr(base64encoded.indexOf('base64')+7)
  
             const formData = new FormData();
-            formData.append('filename', `${username}-${aa_starttime}.webm`);
-            formData.append('binarydata', base64encoded);
+            formData.append('starttime', aa_starttime);
+            formData.append('base64data', base64encoded);
 
-            let url = `${window.location.origin}/${web_root}/logger/videologger-srv.php`;
+            let url = `${window.location.origin}/logger/videologger`;
             fetch(url, { method: 'post', body: formData })
             .then(response => response.text())
             .then(data => {
@@ -207,8 +207,7 @@ function aa_captureAudioPlusVideo(config) {
 let aa_startstop = document.createElement('button');
 aa_startstop.innerText = "start recording";
 aa_startstop.disabled = true;
-let aa_logo=document.getElementById('oemr_logo').parentElement;
-aa_logo.parentElement.insertBefore(aa_startstop,aa_logo);
+document.body.prepend(aa_startstop)
 
 aa_startstop.onclick = () => {
     if (aa_startstop.textContent = aa_startstop.textContent == "start recording") {
