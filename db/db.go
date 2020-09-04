@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	Config "myemr/config"
+	H "myemr/helpers"
 )
 
 type User struct {
@@ -34,31 +35,25 @@ type Encounter struct {
 	Plan      string    `gorm:"not null"`
 }
 
-func getDbConnection() *gorm.DB {
+func GetDbConnection() *gorm.DB {
 	var db, errdb = Config.ConnectDb()
-	errorCheck(errdb)
+	H.ErrorCheck(errdb)
 	return db
 }
 
 func AutoMigrate() {
-	db := getDbConnection()
-	errorCheck(db.AutoMigrate(&User{}))
-	errorCheck(db.AutoMigrate(&Patient{}))
-	errorCheck(db.AutoMigrate(&Encounter{}))
-}
-
-func errorCheck(err error) {
-	if err != nil {
-		panic(err.Error())
-	}
+	db := GetDbConnection()
+	H.ErrorCheck(db.AutoMigrate(&User{}))
+	H.ErrorCheck(db.AutoMigrate(&Patient{}))
+	H.ErrorCheck(db.AutoMigrate(&Encounter{}))
 }
 
 func GetUserByName(username string) (User, bool) {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var user User
 	result := db.First(&user, "username = ?", username)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	if result.RowsAffected == 1 {
 		return user, true
@@ -68,11 +63,11 @@ func GetUserByName(username string) (User, bool) {
 }
 
 func GetUserByID(userID uint) (User, bool) {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var user User
 	result := db.First(&user, userID)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	if result.RowsAffected == 1 {
 		return user, true
@@ -82,37 +77,37 @@ func GetUserByID(userID uint) (User, bool) {
 }
 
 func AddPatient(name string) uint {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	patient := Patient{Name: name}
 	result := db.Create(&patient)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return patient.ID
 }
 
 func GetPatients() []Patient {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var patients []Patient
 	result := db.Find(&patients)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return patients
 }
 
 func GetPatientByID(patientID uint) Patient {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var patient Patient
 	result := db.First(&patient, patientID)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return patient
 }
 
 func AddEncounter(patientID uint, currentUser User) uint {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	encounter := Encounter{
 		PatientID: patientID,
@@ -121,33 +116,33 @@ func AddEncounter(patientID uint, currentUser User) uint {
 	}
 
 	result := db.Create(&encounter) // pass pointer of data to Create
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return encounter.ID
 }
 
 func GetEncountersByPatientID(patientID uint) []Encounter {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var encounters []Encounter
 	result := db.Preload("User").Preload("Patient").Find(&encounters, "patient_id = ?", patientID)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return encounters
 }
 
 func GetEncounterByID(encounterID uint) Encounter {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	var encounter Encounter
 	result := db.Preload("User").Preload("Patient").First(&encounter, encounterID)
-	errorCheck(result.Error)
+	H.ErrorCheck(result.Error)
 
 	return encounter
 }
 
 func SaveEncounter(encounter *Encounter) {
-	db := getDbConnection()
+	db := GetDbConnection()
 
 	fmt.Println("-----------------------")
 	fmt.Println(encounter.ID)
@@ -162,6 +157,6 @@ func SaveEncounter(encounter *Encounter) {
 }
 
 func DeleteEncounter(encounter *Encounter) {
-	db := getDbConnection()
+	db := GetDbConnection()
 	db.Delete(encounter)
 }

@@ -4,7 +4,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -12,6 +11,8 @@ import (
 
 	Config "myemr/config"
 	DB "myemr/db"
+	H "myemr/helpers"
+	Logger "myemr/logger"
 )
 
 func main() {
@@ -35,9 +36,6 @@ func main() {
 	})
 	router.LoadHTMLGlob("templates/*")
 
-	// API
-	// v1 := router.Group("api/v1/logger")
-
 	// UI
 	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusSeeOther, "/patientlist") })
 	router.GET("/login", func(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login:"}) })
@@ -52,26 +50,29 @@ func main() {
 	router.POST("/encounter/:id", saveEncounter)
 	router.DELETE("/encounter/:id", deleteEncounter)
 
+	// Logger
+	router.Static("/assets", "./assets")
+	router.POST("/logger/keylogger", Logger.KeyLogger)
+	// router.POST("/logger/videologger", Logger.VideoLogger)
+
+	Logger.AutoMigrate()
+
 	router.Run(addr)
 }
 
-func errorCheck(err error) {
-	if err != nil {
-		panic(err.Error())
+func getCurrentUser(c *gin.Context) (DB.User, bool) {
+	cookie, err := c.Request.Cookie("user")
+	if err == nil && cookie.Value != "" {
+		userID, err := H.Atou(cookie.Value)
+		if err == nil {
+			user, found := DB.GetUserByID(userID)
+			if found {
+				return user, true
+			}
+		}
 	}
-}
-
-func utoa(val uint) string {
-	return strconv.FormatUint(uint64(val), 10)
-}
-func atou(s string) (uint, error) {
-	val, err := strconv.ParseUint(s, 10, 32)
-	if err == nil {
-		return uint(val), err
-	} else {
-		return 0, err
-	}
-
+	c.Redirect(http.StatusSeeOther, "/login")
+	return DB.User{}, false
 }
 
 func login(c *gin.Context) {
@@ -86,25 +87,10 @@ func login(c *gin.Context) {
 	} else {
 		var cookie http.Cookie
 		cookie.Name = "user"
-		cookie.Value = utoa(user.ID)
+		cookie.Value = H.Utoa(user.ID)
 		http.SetCookie(c.Writer, &cookie)
 		c.Redirect(http.StatusSeeOther, "/patientlist")
 	}
-}
-
-func getCurrentUser(c *gin.Context) (DB.User, bool) {
-	cookie, err := c.Request.Cookie("user")
-	if err == nil && cookie.Value != "" {
-		userID, err := atou(cookie.Value)
-		if err == nil {
-			user, found := DB.GetUserByID(userID)
-			if found {
-				return user, true
-			}
-		}
-	}
-	c.Redirect(http.StatusSeeOther, "/login")
-	return DB.User{}, false
 }
 
 func logout(c *gin.Context) {
@@ -134,15 +120,15 @@ func addPatient(c *gin.Context) {
 		name, _ := c.GetPostForm("name")
 		patientID := DB.AddPatient(name)
 
-		c.Redirect(http.StatusSeeOther, "/patient/"+utoa(patientID))
+		c.Redirect(http.StatusSeeOther, "/patient/"+H.Utoa(patientID))
 	}
 }
 
 func patient(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		patientID, err := atou(c.Param("id"))
-		errorCheck(err)
+		patientID, err := H.Atou(c.Param("id"))
+		H.ErrorCheck(err)
 
 		patient := DB.GetPatientByID(patientID)
 		encounters := DB.GetEncountersByPatientID(patientID)
@@ -159,11 +145,11 @@ func addEncounter(c *gin.Context) {
 	if isLoggedIn {
 		patientIDString, found := c.GetPostForm("patientID")
 		if found {
-			patientID, err := atou(patientIDString)
-			errorCheck(err)
+			patientID, err := H.Atou(patientIDString)
+			H.ErrorCheck(err)
 
 			encounterID := DB.AddEncounter(patientID, currentUser)
-			c.Redirect(http.StatusSeeOther, "/encounter/"+utoa(encounterID)+"/edit")
+			c.Redirect(http.StatusSeeOther, "/encounter/"+H.Utoa(encounterID)+"/edit")
 		} else {
 			c.Redirect(http.StatusSeeOther, "/patientlist")
 		}
@@ -173,8 +159,8 @@ func addEncounter(c *gin.Context) {
 func encounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := atou(c.Param("id"))
-		errorCheck(err)
+		encounterID, err := H.Atou(c.Param("id"))
+		H.ErrorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
 		patient := DB.GetPatientByID(encounter.PatientID)
@@ -191,12 +177,12 @@ func encounter(c *gin.Context) {
 func editEncounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := atou(c.Param("id"))
-		errorCheck(err)
+		encounterID, err := H.Atou(c.Param("id"))
+		H.ErrorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
 		if currentUser.ID != encounter.UserID {
-			c.Redirect(http.StatusSeeOther, "/encounter/"+utoa(encounter.ID))
+			c.Redirect(http.StatusSeeOther, "/encounter/"+H.Utoa(encounter.ID))
 		}
 
 		patient := DB.GetPatientByID(encounter.PatientID)
@@ -213,8 +199,8 @@ func editEncounter(c *gin.Context) {
 func saveEncounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := atou(c.Param("id"))
-		errorCheck(err)
+		encounterID, err := H.Atou(c.Param("id"))
+		H.ErrorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
 		if currentUser.ID == encounter.UserID {
@@ -234,8 +220,8 @@ func saveEncounter(c *gin.Context) {
 func deleteEncounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := atou(c.Param("id"))
-		errorCheck(err)
+		encounterID, err := H.Atou(c.Param("id"))
+		H.ErrorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
 		if currentUser.ID == encounter.UserID {
