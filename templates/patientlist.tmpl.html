@@ -5,5 +5,23 @@
         {{ range .Patients }}
             <a href="/patient/{{ .ID }}">{{ .Name }}</a><br>
         {{ end }}
+        <br>
+        <div id="addPatientButton" style="display: block;">
+            <button onclick="showAddPatientDiv()">Add patient</button>
+        </div>
+        <div id="addPatientForm" style="display: none;">
+            <form>
+                Name:
+                <input type="text" name="name">
+                <input type="submit" value="Save" formaction="/patient" formmethod="POST">
+            </form>
+        </div>
     </body>
+    <script>
+        function showAddPatientDiv() {
+            console.log("aap")
+            document.getElementById('addPatientButton').style.display='none';
+            document.getElementById('addPatientForm').style.display='block';
+        }
+    </script>
 </html>

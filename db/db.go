@@ -80,6 +80,23 @@ func GetUserByID(userID int) (User, bool) {
 	}
 }
 
+func AddPatient(name string) int {
+	db := getDbConnection()
+	defer db.Close()
+
+	stmt, err := db.Prepare("insert patient set name=?")
+	defer stmt.Close()
+	errorCheck(err)
+
+	res, err := stmt.Exec(name)
+	errorCheck(err)
+
+	patientID, err := res.LastInsertId()
+	errorCheck(err)
+
+	return int(patientID)
+}
+
 func GetPatients() []Patient {
 	db := getDbConnection()
 	defer db.Close()
@@ -110,6 +127,23 @@ func GetPatientByID(patientID int) Patient {
 	errorCheck(err)
 
 	return p
+}
+
+func AddEncounter(patientID int, currentUser User) int {
+	db := getDbConnection()
+	defer db.Close()
+
+	stmt, err := db.Prepare("insert encounter set user_id=?, patient_id=?, visitdate=?")
+	defer stmt.Close()
+	errorCheck(err)
+
+	res, err := stmt.Exec(currentUser.ID, patientID, time.Now())
+	errorCheck(err)
+
+	encounterID, err := res.LastInsertId()
+	errorCheck(err)
+
+	return int(encounterID)
 }
 
 func GetEncountersByPatientID(patientID int) []Encounter {

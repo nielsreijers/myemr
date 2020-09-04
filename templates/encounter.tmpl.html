@@ -4,12 +4,17 @@
         <a href="/patientlist">Patient list</a> >
         <a href="/patient/{{ .Encounter.PatientID }}">{{ .Patient.Name }}</a><br>
         <h3>Encounter</h3>
-        Patient: {{ .Patient.Name }}<br>
-        User: {{ .User.Username }}<br>
-        Date: {{ .Encounter.VisitDate | formatDateTime }}<br>
-        History: {{ .Encounter.History }}<br>
-        Physical: {{ .Encounter.Physical }}<br>
-        Plan: {{ .Encounter.Plan }}<br>
+        <b>Patient</b>: {{ .Patient.Name }}<br><br>
+        <b>User</b>: {{ .User.Username }}<br><br>
+        <b>Date</b>: {{ .Encounter.VisitDate | formatDateTime }}<br><br>
+
+        <b>History</b>:<br>
+        <textarea rows="9" cols="80" disabled="true">{{ .Encounter.History }}</textarea><br><br>
+        <b>Physical</b>:<br>
+        <textarea rows="9" cols="80" disabled="true">{{ .Encounter.Physical }}</textarea><br><br>
+        <b>Plan</b>:<br>
+        <textarea rows="9" cols="80" disabled="true">{{ .Encounter.Plan }}</textarea><br><br>
+
         {{ if eq .CurrentUser.ID .User.ID  }}
             <a href="/encounter/{{ .Encounter.ID }}/edit">edit</a>
         {{ end }}

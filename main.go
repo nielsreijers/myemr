@@ -39,14 +39,17 @@ func main() {
 	v1.GET("/testconnect", Connect.TestConnect)
 
 	// UI
+	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusSeeOther, "/patientlist") })
 	router.GET("/login", func(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login:"}) })
 	router.POST("/login", login)
 	router.GET("/logout", logout)
 	router.GET("/patientlist", patientlist)
+	router.POST("/patient", addPatient)
 	router.GET("/patient/:id", patient)
+	router.POST("/encounter", addEncounter)
 	router.GET("/encounter/:id", encounter)
 	router.GET("/encounter/:id/edit", editEncounter)
-	router.POST("/encounter/:id/edit", saveEncounter)
+	router.POST("/encounter/:id", saveEncounter)
 
 	router.Run(addr)
 }
@@ -111,6 +114,16 @@ func patientlist(c *gin.Context) {
 	}
 }
 
+func addPatient(c *gin.Context) {
+	_, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		name, _ := c.GetPostForm("name")
+		patientID := DB.AddPatient(name)
+
+		c.Redirect(http.StatusSeeOther, "/patient/"+strconv.Itoa(patientID))
+	}
+}
+
 func patient(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
@@ -124,6 +137,22 @@ func patient(c *gin.Context) {
 			"Patient":     patient,
 			"Encounters":  encounters,
 		})
+	}
+}
+
+func addEncounter(c *gin.Context) {
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		patientIDString, found := c.GetPostForm("patientID")
+		if found {
+			patientID, err := strconv.Atoi(patientIDString)
+			errorCheck(err)
+
+			encounterID := DB.AddEncounter(patientID, currentUser)
+			c.Redirect(http.StatusSeeOther, "/encounter/"+strconv.Itoa(encounterID)+"/edit")
+		} else {
+			c.Redirect(http.StatusSeeOther, "/patientlist")
+		}
 	}
 }
 

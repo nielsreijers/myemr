@@ -1,10 +1,21 @@
 <html>
     <body>
         {{ template "header.tmpl.html" .CurrentUser }}
+        {{ $CurrentUserID := .CurrentUser.ID }}
         <a href="/patientlist">Patient list</a><br>
         <h3>{{ .Patient.Name }}</h3>
+        Encounters:<br>
         {{ range .Encounters }}
-            <a href="/encounter/{{ .ID }}">{{ .VisitDate | formatDateTime }}</a><br>
+            <a href="/encounter/{{ .ID }}">{{ .VisitDate | formatDateTime }}</a>
+            {{ if eq $CurrentUserID .UserID }}
+            <a href="/encounter/{{ .ID }}/edit">edit</a>
+            {{ end }}
+            <br>
         {{ end }}
+        <br>
+        <form>
+            <input type="hidden" name="patientID" value="{{ .Patient.ID }}">
+            <input type="submit" value="New encounter" formaction="/encounter" formmethod="POST">
+        </form>
     </body>
 </html>
