@@ -25,9 +25,9 @@ type Encounter struct {
 	UserID    int
 	PatientID int
 	VisitDate time.Time
-	Field1    string
-	Field2    string
-	Field3    string
+	History   string
+	Physical  string
+	Plan      string
 }
 
 func getDbConnection() *sql.DB {
@@ -116,14 +116,15 @@ func GetEncountersByPatientID(patientID int) []Encounter {
 	db := getDbConnection()
 	defer db.Close()
 
-	rows, err := db.Query("select id, user_id, patient_id, visitdate, field1, field2, field3 from encounter where user_id=1 and patient_id=?", patientID)
+	rows, err := db.Query("select id, user_id, patient_id, visitdate, history, physical, plan from encounter where patient_id=? order by visitdate desc", patientID)
 	errorCheck(err)
 
 	encounters := []Encounter{}
 	for rows.Next() {
 		var e = Encounter{}
-		err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.Field1, &e.Field2, &e.Field3)
+		err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.History, &e.Physical, &e.Plan)
 		errorCheck(err)
+
 		encounters = append(encounters, e)
 	}
 	return encounters
@@ -133,13 +134,22 @@ func GetEncounterByID(encounterID int) Encounter {
 	db := getDbConnection()
 	defer db.Close()
 
-	rows, err := db.Query("select id,  user_id, patient_id, visitdate, field1, field2, field3 from encounter where id=?", encounterID)
+	rows, err := db.Query("select id,  user_id, patient_id, visitdate, history, physical, plan from encounter where id=?", encounterID)
 	errorCheck(err)
 
 	e := Encounter{}
 	rows.Next()
-	err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.Field1, &e.Field2, &e.Field3)
+	err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.History, &e.Physical, &e.Plan)
 	errorCheck(err)
 
 	return e
+}
+
+func SaveEncounter(encounter Encounter) {
+	db := getDbConnection()
+	defer db.Close()
+
+	_, err := db.Exec("update encounter set history=?, physical=?, plan=? where id=?",
+		encounter.History, encounter.Physical, encounter.Plan, encounter.ID)
+	errorCheck(err)
 }

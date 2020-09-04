@@ -1,6 +1,7 @@
 package main
 
 import (
+	"html/template"
 	"log"
 	"net/http"
 	"strconv"
@@ -28,6 +29,9 @@ func main() {
 		AllowAllOrigins: true,
 		MaxAge:          48 * time.Hour,
 	}))
+	router.SetFuncMap(template.FuncMap{
+		"formatDateTime": func(t time.Time) string { return t.Format("2006-01-02 15:04:05") },
+	})
 	router.LoadHTMLGlob("templates/*")
 
 	// API
@@ -41,6 +45,8 @@ func main() {
 	router.GET("/patientlist", patientlist)
 	router.GET("/patient/:id", patient)
 	router.GET("/encounter/:id", encounter)
+	router.GET("/encounter/:id/edit", editEncounter)
+	router.POST("/encounter/:id/edit", saveEncounter)
 
 	router.Run(addr)
 }
@@ -137,4 +143,47 @@ func encounter(c *gin.Context) {
 			"User":        user,
 		})
 	}
+}
+
+func editEncounter(c *gin.Context) {
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		encounterID, err := strconv.Atoi(c.Param("id"))
+		errorCheck(err)
+
+		encounter := DB.GetEncounterByID(encounterID)
+		if currentUser.ID != encounter.UserID {
+			c.Redirect(http.StatusSeeOther, "/encounter/"+strconv.Itoa(encounter.ID))
+		}
+
+		patient := DB.GetPatientByID(encounter.PatientID)
+		user, _ := DB.GetUserByID(encounter.UserID)
+		c.HTML(http.StatusOK, "encounter_edit.tmpl.html", gin.H{
+			"CurrentUser": currentUser,
+			"Encounter":   encounter,
+			"Patient":     patient,
+			"User":        user,
+		})
+	}
+}
+
+func saveEncounter(c *gin.Context) {
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		encounterID, err := strconv.Atoi(c.Param("id"))
+		errorCheck(err)
+
+		encounter := DB.GetEncounterByID(encounterID)
+		if currentUser.ID == encounter.UserID {
+			history, _ := c.GetPostForm("history")
+			physical, _ := c.GetPostForm("physical")
+			plan, _ := c.GetPostForm("plan")
+			encounter.History = history
+			encounter.Physical = physical
+			encounter.Plan = plan
+
+			DB.SaveEncounter(encounter)
+		}
+	}
+	c.Redirect(http.StatusSeeOther, "/encounter/"+c.Param("id"))
 }

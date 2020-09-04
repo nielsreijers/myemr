@@ -1,10 +1,10 @@
 <html>
     <body>
         {{ template "header.tmpl.html" .CurrentUser }}
-        <a href="/patientlist">Back to patient list</a><br>
+        <a href="/patientlist">Patient list</a><br>
         <h3>{{ .Patient.Name }}</h3>
         {{ range .Encounters }}
-            <a href="/encounter/{{ .ID }}">{{ .VisitDate }}</a><br>
+            <a href="/encounter/{{ .ID }}">{{ .VisitDate | formatDateTime }}</a><br>
         {{ end }}
     </body>
 </html>

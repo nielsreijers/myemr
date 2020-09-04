@@ -1,0 +1,20 @@
+<html>
+    <body>
+        {{ template "header.tmpl.html" .CurrentUser }}
+        <a href="/patientlist">Patient list</a> >
+        <a href="/patient/{{ .Encounter.PatientID }}">{{ .Patient.Name }}</a><br>
+        <h3>Encounter</h3>
+        Patient: {{ .Patient.Name }}<br>
+        User: {{ .User.Username }}<br>
+        Date: {{ .Encounter.VisitDate | formatDateTime }}<br>
+        <form>
+            History:<br>
+            <textarea rows="10" cols="80" name="history">{{ .Encounter.History }}</textarea><br>
+            Physical:<br>
+            <textarea rows="10" cols="80" name="physical">{{ .Encounter.Physical }}</textarea><br>
+            Plan:<br>
+            <textarea rows="10" cols="80" name="plan">{{ .Encounter.Plan }}</textarea><br>
+            <input type="submit" value="Save" formmethod="POST">
+        </form>
+    </body>
+</html>
