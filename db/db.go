@@ -1,39 +1,49 @@
 package db
 
 import (
-	"database/sql"
 	"time"
 
-	_ "github.com/go-sql-driver/mysql"
+	"gorm.io/gorm"
 
 	Config "myemr/config"
 )
 
 type User struct {
-	ID       int
-	Username string
-	Password string
+	gorm.Model
+	Username   string `gorm:"unique;not null"`
+	Password   string `gorm:"not null"`
+	Encounters []Encounter
 }
 
 type Patient struct {
-	ID   int
-	Name string
+	gorm.Model
+	Name       string `gorm:"not null"`
+	Encounters []Encounter
 }
 
 type Encounter struct {
-	ID        int
-	UserID    int
-	PatientID int
-	VisitDate time.Time
-	History   string
-	Physical  string
-	Plan      string
+	gorm.Model
+	UserID    uint      `gorm:"not null"`
+	User      User      ``
+	PatientID uint      `gorm:"not null"`
+	Patient   Patient   ``
+	VisitDate time.Time `gorm:"not null"`
+	History   string    `gorm:"not null"`
+	Physical  string    `gorm:"not null"`
+	Plan      string    `gorm:"not null"`
 }
 
-func getDbConnection() *sql.DB {
+func getDbConnection() *gorm.DB {
 	var db, errdb = Config.ConnectDb()
 	errorCheck(errdb)
 	return db
+}
+
+func AutoMigrate() {
+	db := getDbConnection()
+	errorCheck(db.AutoMigrate(&User{}))
+	errorCheck(db.AutoMigrate(&Patient{}))
+	errorCheck(db.AutoMigrate(&Encounter{}))
 }
 
 func errorCheck(err error) {
@@ -44,146 +54,99 @@ func errorCheck(err error) {
 
 func GetUserByName(username string) (User, bool) {
 	db := getDbConnection()
-	defer db.Close()
 
-	// query all data
-	rows, err := db.Query("select id, username, password from user where username=?", username)
-	errorCheck(err)
+	var user User
+	result := db.First(&user, "username = ?", username)
+	errorCheck(result.Error)
 
-	u := User{}
-	if rows.Next() {
-		err = rows.Scan(&u.ID, &u.Username, &u.Password)
-		errorCheck(err)
-
-		return u, true
+	if result.RowsAffected == 1 {
+		return user, true
 	} else {
-		// User not found
-		return u, false
+		return user, false
 	}
 }
 
-func GetUserByID(userID int) (User, bool) {
+func GetUserByID(userID uint) (User, bool) {
 	db := getDbConnection()
-	defer db.Close()
 
-	// query all data
-	rows, err := db.Query("select id, username, password from user where id=?", userID)
-	errorCheck(err)
+	var user User
+	result := db.First(&user, userID)
+	errorCheck(result.Error)
 
-	u := User{}
-	rows.Next()
-	err = rows.Scan(&u.ID, &u.Username, &u.Password)
-	if err == nil {
-		return u, true
+	if result.RowsAffected == 1 {
+		return user, true
 	} else {
-		return u, false
+		return user, false
 	}
 }
 
-func AddPatient(name string) int {
+func AddPatient(name string) uint {
 	db := getDbConnection()
-	defer db.Close()
 
-	stmt, err := db.Prepare("insert patient set name=?")
-	defer stmt.Close()
-	errorCheck(err)
+	patient := Patient{Name: name}
+	result := db.Create(&patient)
+	errorCheck(result.Error)
 
-	res, err := stmt.Exec(name)
-	errorCheck(err)
-
-	patientID, err := res.LastInsertId()
-	errorCheck(err)
-
-	return int(patientID)
+	return patient.ID
 }
 
 func GetPatients() []Patient {
 	db := getDbConnection()
-	defer db.Close()
 
-	rows, err := db.Query("select id, name from patient")
-	errorCheck(err)
+	var patients []Patient
+	result := db.Find(&patients)
+	errorCheck(result.Error)
 
-	patients := []Patient{}
-	for rows.Next() {
-		var p = Patient{}
-		err = rows.Scan(&p.ID, &p.Name)
-		errorCheck(err)
-		patients = append(patients, p)
-	}
 	return patients
 }
 
-func GetPatientByID(patientID int) Patient {
+func GetPatientByID(patientID uint) Patient {
 	db := getDbConnection()
-	defer db.Close()
 
-	rows, err := db.Query("select id, name from patient where id=?", patientID)
-	errorCheck(err)
+	var patient Patient
+	result := db.First(&patient, patientID)
+	errorCheck(result.Error)
 
-	p := Patient{}
-	rows.Next()
-	err = rows.Scan(&p.ID, &p.Name)
-	errorCheck(err)
-
-	return p
+	return patient
 }
 
-func AddEncounter(patientID int, currentUser User) int {
+func AddEncounter(patientID uint, currentUser User) uint {
 	db := getDbConnection()
-	defer db.Close()
 
-	stmt, err := db.Prepare("insert encounter set user_id=?, patient_id=?, visitdate=?")
-	defer stmt.Close()
-	errorCheck(err)
-
-	res, err := stmt.Exec(currentUser.ID, patientID, time.Now())
-	errorCheck(err)
-
-	encounterID, err := res.LastInsertId()
-	errorCheck(err)
-
-	return int(encounterID)
-}
-
-func GetEncountersByPatientID(patientID int) []Encounter {
-	db := getDbConnection()
-	defer db.Close()
-
-	rows, err := db.Query("select id, user_id, patient_id, visitdate, history, physical, plan from encounter where patient_id=? order by visitdate desc", patientID)
-	errorCheck(err)
-
-	encounters := []Encounter{}
-	for rows.Next() {
-		var e = Encounter{}
-		err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.History, &e.Physical, &e.Plan)
-		errorCheck(err)
-
-		encounters = append(encounters, e)
+	encounter := Encounter{
+		PatientID: patientID,
+		UserID:    currentUser.ID,
+		VisitDate: time.Now(),
 	}
+
+	result := db.Create(&encounter) // pass pointer of data to Create
+	errorCheck(result.Error)
+
+	return encounter.ID
+}
+
+func GetEncountersByPatientID(patientID uint) []Encounter {
+	db := getDbConnection()
+
+	var encounters []Encounter
+
+	result := db.Find(&encounters, "patient_id = ?", patientID)
+	errorCheck(result.Error)
+
 	return encounters
 }
 
-func GetEncounterByID(encounterID int) Encounter {
+func GetEncounterByID(encounterID uint) Encounter {
 	db := getDbConnection()
-	defer db.Close()
 
-	rows, err := db.Query("select id,  user_id, patient_id, visitdate, history, physical, plan from encounter where id=?", encounterID)
-	errorCheck(err)
+	var encounter Encounter
+	result := db.First(&encounter, encounterID)
+	errorCheck(result.Error)
 
-	e := Encounter{}
-	rows.Next()
-	err = rows.Scan(&e.ID, &e.UserID, &e.PatientID, &e.VisitDate, &e.History, &e.Physical, &e.Plan)
-	errorCheck(err)
-
-	return e
+	return encounter
 }
 
 func SaveEncounter(encounter Encounter) {
 	db := getDbConnection()
-	defer db.Close()
-
-	_, err := db.Exec("update encounter set history=?, physical=?, plan=? where id=?",
-		encounter.History, encounter.Physical, encounter.Plan, encounter.ID)
-	errorCheck(err)
+	db.Save(encounter)
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 
 	Config "myemr/config"
-	Connect "myemr/connect"
 	DB "myemr/db"
 )
 
@@ -20,6 +19,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	DB.AutoMigrate()
 
 	router := gin.Default()
 	router.Use(cors.New(cors.Config{
@@ -35,8 +36,7 @@ func main() {
 	router.LoadHTMLGlob("templates/*")
 
 	// API
-	v1 := router.Group("api/v1/logger")
-	v1.GET("/testconnect", Connect.TestConnect)
+	// v1 := router.Group("api/v1/logger")
 
 	// UI
 	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusSeeOther, "/patientlist") })
@@ -60,6 +60,18 @@ func errorCheck(err error) {
 	}
 }
 
+func utoa(val uint) string {
+	return strconv.FormatUint(uint64(val), 10)
+}
+func atou(s string) (uint, error) {
+	val, err := strconv.ParseUint(s, 10, 32)
+	if err == nil {
+		return uint(val), err
+	} else {
+		return 0, err
+	}
+}
+
 func login(c *gin.Context) {
 	username, _ := c.GetPostForm("username")
 	password, _ := c.GetPostForm("password")
@@ -72,7 +84,7 @@ func login(c *gin.Context) {
 	} else {
 		var cookie http.Cookie
 		cookie.Name = "user"
-		cookie.Value = strconv.Itoa(user.ID)
+		cookie.Value = utoa(user.ID)
 		http.SetCookie(c.Writer, &cookie)
 		c.Redirect(http.StatusSeeOther, "/patientlist")
 	}
@@ -81,7 +93,7 @@ func login(c *gin.Context) {
 func getCurrentUser(c *gin.Context) (DB.User, bool) {
 	cookie, err := c.Request.Cookie("user")
 	if err == nil && cookie.Value != "" {
-		userID, err := strconv.Atoi(cookie.Value)
+		userID, err := atou(cookie.Value)
 		if err == nil {
 			user, found := DB.GetUserByID(userID)
 			if found {
@@ -120,14 +132,14 @@ func addPatient(c *gin.Context) {
 		name, _ := c.GetPostForm("name")
 		patientID := DB.AddPatient(name)
 
-		c.Redirect(http.StatusSeeOther, "/patient/"+strconv.Itoa(patientID))
+		c.Redirect(http.StatusSeeOther, "/patient/"+utoa(patientID))
 	}
 }
 
 func patient(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		patientID, err := strconv.Atoi(c.Param("id"))
+		patientID, err := atou(c.Param("id"))
 		errorCheck(err)
 
 		patient := DB.GetPatientByID(patientID)
@@ -145,11 +157,11 @@ func addEncounter(c *gin.Context) {
 	if isLoggedIn {
 		patientIDString, found := c.GetPostForm("patientID")
 		if found {
-			patientID, err := strconv.Atoi(patientIDString)
+			patientID, err := atou(patientIDString)
 			errorCheck(err)
 
 			encounterID := DB.AddEncounter(patientID, currentUser)
-			c.Redirect(http.StatusSeeOther, "/encounter/"+strconv.Itoa(encounterID)+"/edit")
+			c.Redirect(http.StatusSeeOther, "/encounter/"+utoa(encounterID)+"/edit")
 		} else {
 			c.Redirect(http.StatusSeeOther, "/patientlist")
 		}
@@ -159,7 +171,7 @@ func addEncounter(c *gin.Context) {
 func encounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := strconv.Atoi(c.Param("id"))
+		encounterID, err := atou(c.Param("id"))
 		errorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
@@ -177,12 +189,12 @@ func encounter(c *gin.Context) {
 func editEncounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := strconv.Atoi(c.Param("id"))
+		encounterID, err := atou(c.Param("id"))
 		errorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)
 		if currentUser.ID != encounter.UserID {
-			c.Redirect(http.StatusSeeOther, "/encounter/"+strconv.Itoa(encounter.ID))
+			c.Redirect(http.StatusSeeOther, "/encounter/"+utoa(encounter.ID))
 		}
 
 		patient := DB.GetPatientByID(encounter.PatientID)
@@ -199,7 +211,7 @@ func editEncounter(c *gin.Context) {
 func saveEncounter(c *gin.Context) {
 	currentUser, isLoggedIn := getCurrentUser(c)
 	if isLoggedIn {
-		encounterID, err := strconv.Atoi(c.Param("id"))
+		encounterID, err := atou(c.Param("id"))
 		errorCheck(err)
 
 		encounter := DB.GetEncounterByID(encounterID)

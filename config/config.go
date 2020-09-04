@@ -1,8 +1,10 @@
 package config
 
 import (
-	"database/sql"
 	"os"
+
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -15,11 +17,9 @@ func MyPort() (string, error) {
 	return ":" + port, nil
 }
 
-func ConnectDb() (*sql.DB, error) {
-	db, errdb := sql.Open("mysql", "root:1234@tcp(localhost:3306)/myemr?parseTime=true")
-	if errdb != nil {
-		return nil, errdb
-	}
-	err := db.Ping()
+func ConnectDb() (*gorm.DB, error) {
+	dsn := "root:1234@tcp(localhost:3306)/myemr?parseTime=true"
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
 	return db, err
 }
