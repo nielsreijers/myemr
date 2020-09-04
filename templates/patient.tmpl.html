@@ -1,17 +1,39 @@
 <html>
+    <script>
+        function deleteEncounter(id) {
+            if (confirm("Delete this encounter?")) {
+                fetch(`/encounter/${id}`, { method: 'delete'})
+                .then(r => window.location.reload())
+            }
+        }
+    </script>
     <body>
         {{ template "header.tmpl.html" .CurrentUser }}
         {{ $CurrentUserID := .CurrentUser.ID }}
         <a href="/patientlist">Patient list</a><br>
         <h3>{{ .Patient.Name }}</h3>
         Encounters:<br>
+        <table border="1">
+            <tr>
+                <th>time</th>
+                <th>doctor</th>
+                <th></th>
+            </tr>
         {{ range .Encounters }}
-            <a href="/encounter/{{ .ID }}">{{ .VisitDate | formatDateTime }}</a>
-            {{ if eq $CurrentUserID .UserID }}
-            <a href="/encounter/{{ .ID }}/edit">edit</a>
-            {{ end }}
-            <br>
+            <tr>
+                <td>{{ .VisitDate | formatDateTime }}</td>
+                <td>{{ .User.Username }}</a></td>
+                <td>
+                    <a href="/encounter/{{ .ID }}"><button>view</button></a>
+                    {{ if eq $CurrentUserID .UserID }}
+                    <a href="/encounter/{{ .ID }}/edit"><button>edit</button></a>
+                    <button onclick="deleteEncounter({{ .ID }})">delete</button>
+                    {{ end }}
+        
+                </td>
+            </tr>
         {{ end }}
+        </table>
         <br>
         <form>
             <input type="hidden" name="patientID" value="{{ .Patient.ID }}">

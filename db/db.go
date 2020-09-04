@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -129,8 +130,7 @@ func GetEncountersByPatientID(patientID uint) []Encounter {
 	db := getDbConnection()
 
 	var encounters []Encounter
-
-	result := db.Find(&encounters, "patient_id = ?", patientID)
+	result := db.Preload("User").Preload("Patient").Find(&encounters, "patient_id = ?", patientID)
 	errorCheck(result.Error)
 
 	return encounters
@@ -140,13 +140,28 @@ func GetEncounterByID(encounterID uint) Encounter {
 	db := getDbConnection()
 
 	var encounter Encounter
-	result := db.First(&encounter, encounterID)
+	result := db.Preload("User").Preload("Patient").First(&encounter, encounterID)
 	errorCheck(result.Error)
 
 	return encounter
 }
 
-func SaveEncounter(encounter Encounter) {
+func SaveEncounter(encounter *Encounter) {
 	db := getDbConnection()
+
+	fmt.Println("-----------------------")
+	fmt.Println(encounter.ID)
+	fmt.Println(encounter.UserID)
+	fmt.Println(encounter.PatientID)
+	fmt.Println(encounter.VisitDate)
+	fmt.Println(encounter.History)
+	fmt.Println(encounter.Physical)
+	fmt.Println(encounter.Plan)
+
 	db.Save(encounter)
+}
+
+func DeleteEncounter(encounter *Encounter) {
+	db := getDbConnection()
+	db.Delete(encounter)
 }

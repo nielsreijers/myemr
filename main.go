@@ -50,6 +50,7 @@ func main() {
 	router.GET("/encounter/:id", encounter)
 	router.GET("/encounter/:id/edit", editEncounter)
 	router.POST("/encounter/:id", saveEncounter)
+	router.DELETE("/encounter/:id", deleteEncounter)
 
 	router.Run(addr)
 }
@@ -70,6 +71,7 @@ func atou(s string) (uint, error) {
 	} else {
 		return 0, err
 	}
+
 }
 
 func login(c *gin.Context) {
@@ -223,8 +225,21 @@ func saveEncounter(c *gin.Context) {
 			encounter.Physical = physical
 			encounter.Plan = plan
 
-			DB.SaveEncounter(encounter)
+			DB.SaveEncounter(&encounter)
 		}
 	}
 	c.Redirect(http.StatusSeeOther, "/encounter/"+c.Param("id"))
+}
+
+func deleteEncounter(c *gin.Context) {
+	currentUser, isLoggedIn := getCurrentUser(c)
+	if isLoggedIn {
+		encounterID, err := atou(c.Param("id"))
+		errorCheck(err)
+
+		encounter := DB.GetEncounterByID(encounterID)
+		if currentUser.ID == encounter.UserID {
+			DB.DeleteEncounter(&encounter)
+		}
+	}
 }
