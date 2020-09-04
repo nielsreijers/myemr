@@ -103,6 +103,7 @@ function aa_startRecording() {
     aa_state.recordRTC = RecordRTC(aa_state.stream, options);
     aa_state.recordRTC.startRecording();
     aa_starttime = `${Date.now()}`;
+    aa_logEvent("startvideo", aa_starttime)
     filenumber = 0;
 }
 

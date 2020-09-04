@@ -1,6 +1,6 @@
 <html>
     <body>
-        {{ template "header.tmpl.html" .CurrentUser }}
+        {{ template "header.tmpl.html" .Header }}
         <a href="/patientlist">Patient list</a> >
         <a href="/patient/{{ .Encounter.PatientID }}">{{ .Patient.Name }}</a><br>
         <h3>Edit encounter</h3>

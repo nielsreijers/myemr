@@ -1,6 +1,6 @@
 <html>
     <body>
-        {{ template "header.tmpl.html" .CurrentUser }}
+        {{ template "header.tmpl.html" .Header }}
         <a href="/patientlist">Patient list</a> >
         <a href="/patient/{{ .Encounter.PatientID }}">{{ .Patient.Name }}</a><br>
         <h3>Encounter</h3>
@@ -15,7 +15,7 @@
         <b>Plan</b>:<br>
         <textarea rows="9" cols="80" disabled="true">{{ .Encounter.Plan }}</textarea><br><br>
 
-        {{ if eq .CurrentUser.ID .User.ID  }}
+        {{ if eq .Header.CurrentUser.ID .User.ID  }}
             <a href="/encounter/{{ .Encounter.ID }}/edit">edit</a>
         {{ end }}
     </body>

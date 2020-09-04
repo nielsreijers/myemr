@@ -8,8 +8,8 @@
         }
     </script>
     <body>
-        {{ template "header.tmpl.html" .CurrentUser }}
-        {{ $CurrentUserID := .CurrentUser.ID }}
+        {{ template "header.tmpl.html" .Header }}
+        {{ $CurrentUserID := .Header.CurrentUser.ID }}
         <a href="/patientlist">Patient list</a><br>
         <h3>{{ .Patient.Name }}</h3>
         Encounters:<br>

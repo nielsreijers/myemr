@@ -4,7 +4,7 @@
 if (window.location.href.indexOf("login.php") == -1) {
   var aa_events = [];
 
-  function aa_logEvent(evt) {
+  function aa_logKeyMouseEvent(evt) {
       console.log(evt);
       var data;
       var x;
@@ -26,13 +26,13 @@ if (window.location.href.indexOf("login.php") == -1) {
       }
       aa_events.push({ unixtime: Date.now(), type: type, data: data, x: x, y: y });
   }
-  window.addEventListener("keydown", aa_logEvent);
-  window.addEventListener("keyup", aa_logEvent);
-  window.addEventListener("click", aa_logEvent);
-  window.addEventListener("contextmenu", aa_logEvent);
-  window.addEventListener("dblclick", aa_logEvent);
-  window.addEventListener("wheel", aa_logEvent);
-  window.addEventListener("mousemove", aa_logEvent);
+  window.addEventListener("keydown", aa_logKeyMouseEvent);
+  window.addEventListener("keyup", aa_logKeyMouseEvent);
+  window.addEventListener("click", aa_logKeyMouseEvent);
+  window.addEventListener("contextmenu", aa_logKeyMouseEvent);
+  window.addEventListener("dblclick", aa_logKeyMouseEvent);
+  window.addEventListener("wheel", aa_logKeyMouseEvent);
+  window.addEventListener("mousemove", aa_logKeyMouseEvent);
 
   // Push to server at regular intervals
   // Reduce interval timing for more frequent recordings, but increases server load
@@ -55,4 +55,8 @@ if (window.location.href.indexOf("login.php") == -1) {
         });
     }
   }, 500);  
+}
+
+function aa_logEvent(type, data) {
+  aa_events.push({ unixtime: Date.now(), type: type, data: data, x: -1, y: -1 });
 }

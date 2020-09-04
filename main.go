@@ -94,8 +94,8 @@ func patientlist(c *gin.Context) {
 		patients := DB.GetPatients()
 
 		c.HTML(http.StatusOK, "patientlist.tmpl.html", gin.H{
-			"CurrentUser": currentUser,
-			"Patients":    patients,
+			"Header":   gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Patients": patients,
 		})
 	}
 }
@@ -119,9 +119,9 @@ func patient(c *gin.Context) {
 		patient := DB.GetPatientByID(patientID)
 		encounters := DB.GetEncountersByPatientID(patientID)
 		c.HTML(http.StatusOK, "patient.tmpl.html", gin.H{
-			"CurrentUser": currentUser,
-			"Patient":     patient,
-			"Encounters":  encounters,
+			"Header":     gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Patient":    patient,
+			"Encounters": encounters,
 		})
 	}
 }
@@ -152,10 +152,10 @@ func encounter(c *gin.Context) {
 		patient := DB.GetPatientByID(encounter.PatientID)
 		user, _ := DB.GetUserByID(encounter.UserID)
 		c.HTML(http.StatusOK, "encounter.tmpl.html", gin.H{
-			"CurrentUser": currentUser,
-			"Encounter":   encounter,
-			"Patient":     patient,
-			"User":        user,
+			"Header":    gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Encounter": encounter,
+			"Patient":   patient,
+			"User":      user,
 		})
 	}
 }
@@ -174,10 +174,10 @@ func editEncounter(c *gin.Context) {
 		patient := DB.GetPatientByID(encounter.PatientID)
 		user, _ := DB.GetUserByID(encounter.UserID)
 		c.HTML(http.StatusOK, "encounter_edit.tmpl.html", gin.H{
-			"CurrentUser": currentUser,
-			"Encounter":   encounter,
-			"Patient":     patient,
-			"User":        user,
+			"Header":    gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Encounter": encounter,
+			"Patient":   patient,
+			"User":      user,
 		})
 	}
 }

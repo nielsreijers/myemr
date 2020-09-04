@@ -2,6 +2,10 @@
 <script src="/assets/RecordRTC.js"></script>
 <script src="/assets/videologger.js"></script>
 
-Logged in as: {{ .Username }}<br>
+<script>
+    aa_logEvent("pageload", "{{ .Request.URL.Path }}")
+</script>
+
+Logged in as: {{ .CurrentUser.Username }}<br>
 <a href="/logout">Logout</a>
 <hr>
