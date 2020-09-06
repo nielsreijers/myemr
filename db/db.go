@@ -35,10 +35,29 @@ type Encounter struct {
 	Plan      string    `gorm:"not null"`
 }
 
+var gormdb *gorm.DB
+
+func checkConnection(gormdb *gorm.DB) bool {
+	if gormdb != nil {
+		db, err := gormdb.DB()
+		if err == nil {
+			err = db.Ping()
+			if err == nil {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 func GetDbConnection() *gorm.DB {
-	var db, errdb = Config.ConnectDb()
-	H.ErrorCheck(errdb)
-	return db
+	if gormdb == nil || !checkConnection(gormdb) {
+		db, err := Config.ConnectGORM()
+		H.ErrorCheck(err)
+		gormdb = db
+	}
+
+	return gormdb
 }
 
 func AutoMigrate() {

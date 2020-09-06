@@ -76,26 +76,30 @@ function aa_startRecording() {
     console.log("aa_startRecording() called.");
 
     aa_state.blobs = [];
+    var i = 0;
     options.ondataavailable = function(blob) {
         aa_state.blobs.push(blob);
         aa_blobToBase64(blob).then(base64encoded => {
-            // base64encoded now looks with something like this:
+            // base64encoded now looks something like this:
             //    "data:video/x-matroska;codecs=avc1,opus;base64,Q7Z1…xMIqrZDmb7+gYAUyoqJ/euC8Zu5hEe6frr3xfDTLJSfLqPJQ="
             // We only want to send the base64 encoded data
             base64encoded = base64encoded.substr(base64encoded.indexOf('base64')+7)
  
+            var a = i++;
+
             const formData = new FormData();
             formData.append('starttime', aa_starttime);
             formData.append('base64data', base64encoded);
 
             let url = `${window.location.origin}/logger/videologger`;
+            console.log(`[videologger]: POST ${a} (started at ${aa_starttime}) ...`)
             fetch(url, { method: 'post', body: formData })
             .then(response => response.text())
             .then(data => {
-                console.log('[videologger]:', data);
+                console.log(`[videologger]: POST ${a} (started at ${aa_starttime}) done`)
             })
             .catch((error) => {
-                console.error('[videologger] Error:', error);
+                console.log(`[videologger]: POST ${a} (started at ${aa_starttime}) failed: ${error}`)
             });           
         });
     };
