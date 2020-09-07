@@ -61,7 +61,7 @@ func main() {
 
 	Logger.AutoMigrate()
 
-	router.Run(addr)
+	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
 }
 
 func login(c *gin.Context) {
