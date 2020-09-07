@@ -42,9 +42,11 @@ func main() {
 
 	// UI
 	router.GET("/", func(c *gin.Context) { c.HTML(http.StatusOK, "index.tmpl.html", gin.H{}) })
-	router.GET("/login", func(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login:"}) })
-	router.POST("/login", login)
-	router.GET("/logout", logout)
+	router.GET("/login", L.Login)
+	router.POST("/login", L.Login)
+	router.GET("/changepassword", L.ChangePassword)
+	router.POST("/changepassword", L.ChangePassword)
+	router.GET("/logout", L.Logout)
 	router.GET("/patientlist", patientlist)
 	router.POST("/patient", addPatient)
 	router.GET("/patient/:id", patient)
@@ -62,33 +64,6 @@ func main() {
 	Logger.AutoMigrate()
 
 	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
-}
-
-func login(c *gin.Context) {
-	username, _ := c.GetPostForm("username")
-	password, _ := c.GetPostForm("password")
-	user, found := DB.GetUserByName(username)
-
-	if !found || user.Password != password {
-		c.HTML(http.StatusOK, "login.tmpl.html", gin.H{
-			"Message": "Login failed",
-		})
-	} else {
-		var cookie http.Cookie
-		cookie.Name = "user"
-		cookie.Value = H.Utoa(user.ID)
-		http.SetCookie(c.Writer, &cookie)
-		c.Redirect(http.StatusSeeOther, "/patientlist")
-	}
-}
-
-func logout(c *gin.Context) {
-	cookie, err := c.Request.Cookie("user")
-	if err == nil {
-		cookie.Value = ""
-		http.SetCookie(c.Writer, cookie)
-	}
-	c.Redirect(http.StatusTemporaryRedirect, "/login")
 }
 
 func patientlist(c *gin.Context) {

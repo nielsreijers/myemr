@@ -1,7 +1,6 @@
 package db
 
 import (
-	"fmt"
 	"time"
 
 	"gorm.io/gorm"
@@ -13,6 +12,7 @@ import (
 type User struct {
 	gorm.Model
 	Username   string `gorm:"unique;not null"`
+	Salt       string `gorm:"not null"`
 	Password   string `gorm:"not null"`
 	Encounters []Encounter
 }
@@ -95,6 +95,11 @@ func GetUserByID(userID uint) (User, bool) {
 	}
 }
 
+func SaveUser(user User) {
+	db := GetDbConnection()
+	db.Save(user)
+}
+
 func AddPatient(name string) uint {
 	db := GetDbConnection()
 
@@ -162,16 +167,6 @@ func GetEncounterByID(encounterID uint) Encounter {
 
 func SaveEncounter(encounter *Encounter) {
 	db := GetDbConnection()
-
-	fmt.Println("-----------------------")
-	fmt.Println(encounter.ID)
-	fmt.Println(encounter.UserID)
-	fmt.Println(encounter.PatientID)
-	fmt.Println(encounter.VisitDate)
-	fmt.Println(encounter.History)
-	fmt.Println(encounter.Physical)
-	fmt.Println(encounter.Plan)
-
 	db.Save(encounter)
 }
 
