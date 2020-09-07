@@ -14,6 +14,11 @@
     window.addEventListener("dblclick", parent.kl_logKeyMouseEvent);
     window.addEventListener("wheel", parent.kl_logKeyMouseEvent);
     window.addEventListener("mousemove", parent.kl_logKeyMouseEvent);
+
+    window.onbeforeunload = function() {
+        parent.kl_logEvent("pageunload", "{{ .Request.URL.Path }}");
+        parent.kl_flush();
+    }
 </script>
 
 Logged in as: {{ .CurrentUser.Username }}<br>
