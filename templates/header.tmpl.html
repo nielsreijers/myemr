@@ -1,9 +1,19 @@
-<script src="/assets/keylogger.js"></script>
-<script src="/assets/RecordRTC.js"></script>
-<script src="/assets/videologger.js"></script>
-
 <script>
-    aa_logEvent("pageload", "{{ .Request.URL.Path }}")
+    // Make sure we're in our iframe:
+    if (window == window.parent) {
+        window.location.href = "/";
+    }
+
+    parent.kl_logEvent("pageload", "{{ .Request.URL.Path }}");
+    parent.vl_startNewRecording(window.location.pathname.substr(1).replace(/\//g, "_")); // remove the leading '/', replace remaining '/'s with '_'
+
+    window.addEventListener("keydown", parent.kl_logKeyMouseEvent);
+    window.addEventListener("keyup", parent.kl_logKeyMouseEvent);
+    window.addEventListener("click", parent.kl_logKeyMouseEvent);
+    window.addEventListener("contextmenu", parent.kl_logKeyMouseEvent);
+    window.addEventListener("dblclick", parent.kl_logKeyMouseEvent);
+    window.addEventListener("wheel", parent.kl_logKeyMouseEvent);
+    window.addEventListener("mousemove", parent.kl_logKeyMouseEvent);
 </script>
 
 Logged in as: {{ .CurrentUser.Username }}<br>

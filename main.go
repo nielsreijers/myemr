@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/thinkerou/favicon"
 
 	Config "myemr/config"
 	DB "myemr/db"
@@ -37,8 +38,10 @@ func main() {
 	})
 	router.LoadHTMLGlob("templates/*")
 
+	router.Use(favicon.New("./assets/favicon.ico"))
+
 	// UI
-	router.GET("/", func(c *gin.Context) { c.Redirect(http.StatusSeeOther, "/patientlist") })
+	router.GET("/", func(c *gin.Context) { c.HTML(http.StatusOK, "index.tmpl.html", gin.H{}) })
 	router.GET("/login", func(c *gin.Context) { c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login:"}) })
 	router.POST("/login", login)
 	router.GET("/logout", logout)
