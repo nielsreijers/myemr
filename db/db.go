@@ -72,7 +72,6 @@ func GetUserByName(username string) (User, bool) {
 
 	var user User
 	result := db.First(&user, "username = ?", username)
-	H.ErrorCheck(result.Error)
 
 	if result.RowsAffected == 1 {
 		return user, true
