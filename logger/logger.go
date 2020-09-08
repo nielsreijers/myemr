@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"time"
 
@@ -42,7 +43,7 @@ func AutoMigrate() {
 }
 
 func KeyLogger(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
 	if isLoggedIn {
 		body, err := c.GetRawData()
 		H.ErrorCheck(err)
@@ -61,11 +62,13 @@ func KeyLogger(c *gin.Context) {
 
 		db := DB.GetDbConnection()
 		db.Create(&events)
+	} else {
+		c.Status(http.StatusUnauthorized)
 	}
 }
 
 func VideoLogger(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
 	if isLoggedIn {
 		starttime, _ := c.GetPostForm("starttime")
 		location, _ := c.GetPostForm("location")
@@ -81,5 +84,7 @@ func VideoLogger(c *gin.Context) {
 
 		_, err = f.Write(binarydata)
 		H.ErrorCheck(err)
+	} else {
+		c.Status(http.StatusUnauthorized)
 	}
 }

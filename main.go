@@ -67,7 +67,7 @@ func main() {
 }
 
 func patientlist(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		patients := DB.GetPatients()
 
@@ -79,7 +79,7 @@ func patientlist(c *gin.Context) {
 }
 
 func addPatient(c *gin.Context) {
-	_, isLoggedIn := L.GetCurrentUser(c)
+	_, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		name, _ := c.GetPostForm("name")
 		patientID := DB.AddPatient(name)
@@ -89,7 +89,7 @@ func addPatient(c *gin.Context) {
 }
 
 func patient(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		patientID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -105,7 +105,7 @@ func patient(c *gin.Context) {
 }
 
 func addEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		patientIDString, found := c.GetPostForm("patientID")
 		if found {
@@ -121,7 +121,7 @@ func addEncounter(c *gin.Context) {
 }
 
 func encounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -139,7 +139,7 @@ func encounter(c *gin.Context) {
 }
 
 func editEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -161,7 +161,7 @@ func editEncounter(c *gin.Context) {
 }
 
 func saveEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)
@@ -182,7 +182,7 @@ func saveEncounter(c *gin.Context) {
 }
 
 func deleteEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetCurrentUser(c)
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		encounterID, err := H.Atou(c.Param("id"))
 		H.ErrorCheck(err)

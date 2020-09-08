@@ -13,7 +13,15 @@ import (
 	H "myemr/helpers"
 )
 
-func GetCurrentUser(c *gin.Context) (DB.User, bool) {
+func GetLoggedOnUserOrRedirect(c *gin.Context) (DB.User, bool) {
+	user, found := GetLoggedOnUser(c)
+	if !found {
+		c.Redirect(http.StatusSeeOther, "/login")
+	}
+	return user, found
+}
+
+func GetLoggedOnUser(c *gin.Context) (DB.User, bool) {
 	cookie, err := c.Request.Cookie("user")
 	if err == nil && cookie.Value != "" {
 		userID, err := H.Atou(cookie.Value)
@@ -69,7 +77,7 @@ func Logout(c *gin.Context) {
 }
 
 func ChangePassword(c *gin.Context) {
-	user, isLoggedIn := GetCurrentUser(c)
+	user, isLoggedIn := GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
 		if c.Request.Method == "GET" {
 			c.HTML(http.StatusOK, "changepassword.tmpl.html", gin.H{"Message": "Change password:"})
