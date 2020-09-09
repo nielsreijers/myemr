@@ -168,12 +168,16 @@ func saveEncounter(c *gin.Context) {
 
 		encounter := DB.GetEncounterByID(encounterID)
 		if currentUser.ID == encounter.UserID {
-			history, _ := c.GetPostForm("history")
-			physical, _ := c.GetPostForm("physical")
-			plan, _ := c.GetPostForm("plan")
-			encounter.History = history
-			encounter.Physical = physical
-			encounter.Plan = plan
+			subjective, _ := c.GetPostForm("subjective")
+			objective, _ := c.GetPostForm("objective")
+			ddx1, _ := c.GetPostForm("ddx1")
+			ddx2, _ := c.GetPostForm("ddx2")
+			ddx3, _ := c.GetPostForm("ddx3")
+			encounter.Subjective = subjective
+			encounter.Objective = objective
+			encounter.DDx1 = ddx1
+			encounter.DDx2 = ddx2
+			encounter.DDx3 = ddx3
 
 			DB.SaveEncounter(&encounter)
 		}

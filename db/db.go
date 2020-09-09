@@ -25,14 +25,16 @@ type Patient struct {
 
 type Encounter struct {
 	gorm.Model
-	UserID    uint      `gorm:"not null"`
-	User      User      ``
-	PatientID uint      `gorm:"not null"`
-	Patient   Patient   ``
-	VisitDate time.Time `gorm:"not null"`
-	History   string    `gorm:"not null"`
-	Physical  string    `gorm:"not null"`
-	Plan      string    `gorm:"not null"`
+	UserID     uint      `gorm:"not null"`
+	User       User      ``
+	PatientID  uint      `gorm:"not null"`
+	Patient    Patient   ``
+	VisitDate  time.Time `gorm:"not null"`
+	Subjective string    `gorm:"not null"`
+	Objective  string    `gorm:"not null"`
+	DDx1       string    `gorm:"not null"`
+	DDx2       string    `gorm:"not null"`
+	DDx3       string    `gorm:"not null"`
 }
 
 var gormdb *gorm.DB

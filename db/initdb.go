@@ -42,17 +42,21 @@ func initDbIfEmpty() {
 		encounter1.UserID = user1.ID
 		encounter1.PatientID = patient1.ID
 		encounter1.VisitDate = time.Date(2020, 9, 2, 16, 30, 0, 0, time.Local)
-		encounter1.History = "aap"
-		encounter1.Physical = "noot"
-		encounter1.Plan = "mies"
+		encounter1.Subjective = "aap"
+		encounter1.Objective = "noot"
+		encounter1.DDx1 = "mies 1"
+		encounter1.DDx2 = "mies 2"
+		encounter1.DDx3 = "mies 3"
 		db.Create(&encounter1)
 		encounter2 := Encounter{}
 		encounter2.UserID = user2.ID
 		encounter2.PatientID = patient1.ID
 		encounter2.VisitDate = time.Date(2020, 9, 3, 14, 07, 0, 0, time.Local)
-		encounter2.History = "wim"
-		encounter2.Physical = "zus"
-		encounter2.Plan = "jet"
+		encounter2.Subjective = "wim"
+		encounter2.Objective = "zus"
+		encounter2.DDx1 = "jet 1"
+		encounter2.DDx2 = "jet 2"
+		encounter2.DDx3 = "jet 3"
 		db.Create(&encounter2)
 	}
 }
