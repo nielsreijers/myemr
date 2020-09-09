@@ -75,7 +75,7 @@ func VideoLogger(c *gin.Context) {
 		base64data, _ := c.GetPostForm("base64data")
 
 		binarydata, err := base64.StdEncoding.DecodeString(base64data)
-		filename := fmt.Sprintf("videos/%s-%s-%s.raw.webm", currentUser.Username, location, starttime)
+		filename := fmt.Sprintf("data/videos/%s-%s-%s.raw.webm", currentUser.Username, location, starttime)
 		H.ErrorCheck(err)
 
 		f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)

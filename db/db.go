@@ -65,6 +65,7 @@ func AutoMigrate() {
 	H.ErrorCheck(db.AutoMigrate(&User{}))
 	H.ErrorCheck(db.AutoMigrate(&Patient{}))
 	H.ErrorCheck(db.AutoMigrate(&Encounter{}))
+	initDbIfEmpty()
 }
 
 func GetUserByName(username string) (User, bool) {

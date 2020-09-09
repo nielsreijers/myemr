@@ -1,4 +1,5 @@
 -- default password 1234 with empty salt
+USE myemr;
 INSERT INTO users (username, salt, password) values ('niels', '', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
 INSERT INTO users (username, salt, password) values ('sinterklaas', '', '03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4');
 
