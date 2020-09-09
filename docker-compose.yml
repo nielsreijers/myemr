@@ -1,20 +1,17 @@
 version: "3"
 services:
   db:
-    image: mariadb:10.5.5
+    build:
+      context: ./db
+      dockerfile: Dockerfile
     container_name: myemr-db
-    environment:
-      - MYSQL_DATABASE=myemr
-      - MYSQL_ROOT_PASSWORD=1234
     volumes:
       - ${DATADIR}/db:/var/lib/mysql
   web:
     build:
-      context: .
+      context: ./web
       dockerfile: Dockerfile
     container_name: myemr-web
-    environment:
-      - MYSQL=myemr-db
     ports:
       - "5001:5001"
     depends_on:
