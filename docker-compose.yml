@@ -7,7 +7,7 @@ services:
       - MYSQL_DATABASE=myemr
       - MYSQL_ROOT_PASSWORD=1234
     volumes:
-      - ./data/db:/var/lib/mysql
+      - ${DATADIR}/db:/var/lib/mysql
   web:
     build:
       context: .
@@ -20,5 +20,5 @@ services:
     depends_on:
       - db
     volumes:
-      - ./data/videos:/myemr/data/videos
+      - ${DATADIR}/videos:/myemr/data/videos
     command: ["./wait-for-it.sh", "db:3306", "--", "./myemr"]
