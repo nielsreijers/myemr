@@ -1,31 +1,35 @@
-version: "3"
+version: "3.8"
 services:
   db:
+    container_name: myemr-db
     build:
       context: ./db
       dockerfile: Dockerfile
       args:
         USER_ID: ${USER_ID:?Please set the USER_ID variable}
         GROUP_ID: ${GROUP_ID:?Please set the GROUP_ID variable}
-    container_name: myemr-db
     ports:
       - "5152:3306"
     volumes:
-      - ${DATADIR:?Please set the DATADIR variable}/db:/var/lib/mysql
-    user: 1000:1000
+      - type: bind
+        source: ${DATADIR:?Please set the DATADIR variable}/db
+        target: /var/lib/mysql
+    user: ${USER_ID}:${GROUP_ID}
   web:
+    depends_on:
+      - db
+    container_name: myemr-web
     build:
       context: ./web
       dockerfile: Dockerfile
       args:
         USER_ID: ${USER_ID:?Please set the USER_ID variable}
         GROUP_ID: ${GROUP_ID:?Please set the GROUP_ID variable}
-    container_name: myemr-web
     ports:
       - "5151:5001"
-    depends_on:
-      - db
     volumes:
-      - ${DATADIR:?Please set the DATADIR variable}/videos:/myemr/data/videos
+      - type: bind
+        source: ${DATADIR:?Please set the DATADIR variable}/videos
+        target: /myemr/data/videos
     command: ["./wait-for-it.sh", "db:3306", "--", "./myemr"]
-    user: 1000:1000
+    user: ${USER_ID}:${GROUP_ID}
