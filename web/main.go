@@ -63,8 +63,7 @@ func main() {
 
 	Logger.AutoMigrate()
 
-	// router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
-	router.Run(addr)
+	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
 }
 
 func patientlist(c *gin.Context) {
