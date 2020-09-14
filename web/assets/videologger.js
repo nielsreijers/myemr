@@ -1,4 +1,6 @@
 vl_mimeType = 'video/webm;codecs=vp9';
+vl_debug = false
+
 var vl_options = {
     // audio, video, canvas, gif
    type: 'video',
@@ -243,11 +245,15 @@ function vl_startRecording(location) {
             formData.append('base64data', base64encoded);
 
             let url = `${window.location.origin}/logger/videologger`;
-            console.log(`[videologger]: POST ${location}-${starttime} ...`)
+            if (vl_debug) {
+                console.log(`[videologger]: POST ${location}-${starttime} ...`)
+            }
             fetch(url, { method: 'post', body: formData })
             .then(response => response.text())
             .then(data => {
-                console.log(`[videologger]: POST ${location}-${starttime} done`)
+                if (vl_debug) {
+                    console.log(`[videologger]: POST ${location}-${starttime} done`)
+                }
             })
             .catch((error) => {
                 console.log(`[videologger]: POST ${location}-${starttime} failed: ${error}`)

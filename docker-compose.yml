@@ -12,7 +12,7 @@ services:
       - "5152:3306"
     volumes:
       - type: bind
-        source: ${DATADIR:?Please set the DATADIR variable}/db
+        source: ${MYEMR_DATADIR:?Please set the MYEMR_DATADIR variable}/db
         target: /var/lib/mysql
     user: ${USER_ID}:${GROUP_ID}
   web:
@@ -29,7 +29,7 @@ services:
       - "5151:5001"
     volumes:
       - type: bind
-        source: ${DATADIR:?Please set the DATADIR variable}/videos
+        source: ${MYEMR_DATADIR:?Please set the MYEMR_DATADIR variable}/videos
         target: /myemr/data/videos
     command: ["./wait-for-it.sh", "db:3306", "--", "./myemr"]
     user: ${USER_ID}:${GROUP_ID}
