@@ -93,12 +93,12 @@ var vl_options = {
 };
 
 
-var vl_state = {}
+var vl_state = null
 
 function vl_turnon() {
     console.log("vl_turnon() called.");
 
-    vl_state = {}
+    vl_state = { }
 
     var commonConfig = {
         onMediaCaptured: function(stream) {
@@ -132,7 +132,7 @@ function vl_turnoff() {
 
     vl_stopStream();
 
-    vl_state = {};
+    vl_state = null;
 }
 
 function vl_blobToBase64(blob) {
@@ -298,7 +298,15 @@ function vl_stopOrRestartRecording() {
     }
 }
 
+function vl_isCameraOn() {
+    return vl_state != null;
+}
+
 function vl_startNewRecording(location) {
+    if (!vl_isCameraOn()) {
+        vl_turnon();
+    }
+
     vl_newRecordingPendingLocation = location;
     // If the videologger is still initialising, startRecording will be called with vl_newRecordingPendingLocation as parameter
     // If it's already initialised, stop the current recording and restart a new one
@@ -307,20 +315,8 @@ function vl_startNewRecording(location) {
     }
 }
 
-// // Add button to start/stop recording
-// let vl_startstop = document.createElement('button');
-// vl_startstop.innerText = "start recording";
-// vl_startstop.disabled = true;
-// document.body.prepend(vl_startstop)
-
-// vl_startstop.onclick = () => {
-//     if (vl_startstop.textContent = vl_startstop.textContent == "start recording") {
-//         vl_startstop.textContent = "stop recording";
-//         vl_turnon();
-//     } else {
-//         vl_startstop.textContent = "start recording";
-//         vl_turnoff();
-//     }
-// }
-
-vl_turnon();
+function vl_stopRecording() {
+    if (vl_isCameraOn()) {
+        vl_turnoff();
+    }
+}

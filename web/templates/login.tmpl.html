@@ -1,5 +1,9 @@
 <html>
     <body>
+        <script>
+            // Not logged in, so make sure the camera is off.
+            parent.vl_stopRecording();
+        </script>
         <h2>{{ .Message }}</h2>
         <form>
             Username: <input type="text" name="username"><br>
