@@ -11,33 +11,30 @@ import (
 
 type User struct {
 	gorm.Model
-	Username   string `gorm:"unique;not null"`
-	Salt       string `gorm:"not null"`
-	Password   string `gorm:"not null"`
-	Encounters []Encounter
+	Username string `gorm:"unique;not null"`
+	Salt     string `gorm:"not null"`
+	Password string `gorm:"not null"`
+	Results  []StepResult
 }
 
-type Patient struct {
+type Step struct {
 	gorm.Model
-	Name       string `gorm:"not null"`
-	Encounters []Encounter
+	Number   int    `gorm:"unique;not null"`
+	Type     string `gorm:"not null"`
+	Template string `gorm:"not null"`
+	Data     string ``
+	Results  []StepResult
 }
 
-type Encounter struct {
+type StepResult struct {
 	gorm.Model
-	UserID     uint      `gorm:"not null"`
-	User       User      ``
-	PatientID  uint      `gorm:"not null"`
-	Patient    Patient   ``
-	VisitDate  time.Time `gorm:"not null"`
-	Subjective string    `gorm:"not null"`
-	Objective  string    `gorm:"not null"`
-	DDx1       string    `gorm:"not null"`
-	DDx2       string    `gorm:"not null"`
-	DDx3       string    `gorm:"not null"`
+	UserID          uint      `gorm:"not null"`
+	User            User      ``
+	StepID          uint      `gorm:"not null"`
+	Step            Step      ``
+	CompletedAtTime time.Time `gorm:"not null"`
+	Result          string    `gorm:"not null"`
 }
-
-var gormdb *gorm.DB
 
 func checkConnection(gormdb *gorm.DB) bool {
 	if gormdb != nil {
@@ -52,6 +49,8 @@ func checkConnection(gormdb *gorm.DB) bool {
 	return false
 }
 
+var gormdb *gorm.DB
+
 func GetDbConnection() *gorm.DB {
 	if gormdb == nil || !checkConnection(gormdb) {
 		db, err := Config.ConnectGORM()
@@ -65,8 +64,8 @@ func GetDbConnection() *gorm.DB {
 func AutoMigrate() {
 	db := GetDbConnection()
 	H.ErrorCheck(db.AutoMigrate(&User{}))
-	H.ErrorCheck(db.AutoMigrate(&Patient{}))
-	H.ErrorCheck(db.AutoMigrate(&Encounter{}))
+	H.ErrorCheck(db.AutoMigrate(&Step{}))
+	H.ErrorCheck(db.AutoMigrate(&StepResult{}))
 	initDbIfEmpty()
 }
 
@@ -102,77 +101,63 @@ func SaveUser(user User) {
 	db.Save(user)
 }
 
-func AddPatient(name string) uint {
+func AddUser(username, salt, password string) uint {
 	db := GetDbConnection()
 
-	patient := Patient{Name: name}
-	result := db.Create(&patient)
+	user := User{}
+	user.Username = username
+	user.Salt = salt
+	user.Password = password
+
+	result := db.Create(&user)
 	H.ErrorCheck(result.Error)
 
-	return patient.ID
+	return user.ID
 }
 
-func GetPatients() []Patient {
+func GetSteps() []Step {
 	db := GetDbConnection()
 
-	var patients []Patient
-	result := db.Find(&patients)
+	var steps []Step
+	result := db.Find(&steps)
 	H.ErrorCheck(result.Error)
 
-	return patients
+	return steps
 }
 
-func GetPatientByID(patientID uint) Patient {
+func GetStepByNumber(number int) (Step, bool) {
 	db := GetDbConnection()
 
-	var patient Patient
-	result := db.First(&patient, patientID)
+	var step Step
+	result := db.First(&step, "number = ?", number)
+
+	if result.RowsAffected == 1 {
+		return step, true
+	} else {
+		return step, false
+	}
+}
+
+func GetStepsWithResultsByUserID(userID uint) []Step {
+	db := GetDbConnection()
+
+	var steps []Step
+	result := db.Preload("Results", "user_id = ?", userID).Find(&steps)
 	H.ErrorCheck(result.Error)
 
-	return patient
+	return steps
 }
 
-func AddEncounter(patientID uint, currentUser User) uint {
+func SaveStepResult(user User, step Step, resultString string) {
 	db := GetDbConnection()
 
-	encounter := Encounter{
-		PatientID: patientID,
-		UserID:    currentUser.ID,
-		VisitDate: time.Now(),
+	stepresult := StepResult{
+		UserID:          user.ID,
+		StepID:          step.ID,
+		Result:          resultString,
+		CompletedAtTime: time.Now(),
 	}
 
-	result := db.Create(&encounter) // pass pointer of data to Create
+	result := db.Create(&stepresult)
 	H.ErrorCheck(result.Error)
-
-	return encounter.ID
-}
-
-func GetEncountersByPatientID(patientID uint) []Encounter {
-	db := GetDbConnection()
-
-	var encounters []Encounter
-	result := db.Preload("User").Preload("Patient").Find(&encounters, "patient_id = ?", patientID)
-	H.ErrorCheck(result.Error)
-
-	return encounters
-}
-
-func GetEncounterByID(encounterID uint) Encounter {
-	db := GetDbConnection()
-
-	var encounter Encounter
-	result := db.Preload("User").Preload("Patient").First(&encounter, encounterID)
-	H.ErrorCheck(result.Error)
-
-	return encounter
-}
-
-func SaveEncounter(encounter *Encounter) {
-	db := GetDbConnection()
-	db.Save(encounter)
-}
-
-func DeleteEncounter(encounter *Encounter) {
-	db := GetDbConnection()
-	db.Delete(encounter)
 }

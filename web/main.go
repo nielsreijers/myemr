@@ -1,9 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
@@ -47,14 +49,13 @@ func main() {
 	router.GET("/changepassword", L.ChangePassword)
 	router.POST("/changepassword", L.ChangePassword)
 	router.GET("/logout", L.Logout)
-	router.GET("/patientlist", patientlist)
-	router.POST("/patient", addPatient)
-	router.GET("/patient/:id", patient)
-	router.POST("/encounter", addEncounter)
-	router.GET("/encounter/:id", encounter)
-	router.GET("/encounter/:id/edit", editEncounter)
-	router.POST("/encounter/:id", saveEncounter)
-	router.DELETE("/encounter/:id", deleteEncounter)
+	router.GET("/createaccount", L.CreateAccount)
+	router.POST("/createaccount", L.CreateAccount)
+	router.GET("/nextstep", nextStep)
+	router.GET("/step/:number", step)
+	router.POST("/step/:number", step)
+
+	router.GET("/start", start)
 
 	// Logger
 	router.Static("/assets", "./assets")
@@ -66,134 +67,80 @@ func main() {
 	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
 }
 
-func patientlist(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		patients := DB.GetPatients()
+func getResultsForUser(userID uint) ([]DB.Step, bool, int) {
+	steps := DB.GetStepsWithResultsByUserID(userID)
 
-		c.HTML(http.StatusOK, "patientlist.tmpl.html", gin.H{
-			"Header":   gin.H{"CurrentUser": currentUser, "Request": c.Request},
-			"Patients": patients,
+	completed := true
+	nextStepNumber := -1
+	for _, step := range steps {
+		if len(step.Results) == 0 {
+			completed = false
+			if step.Number < nextStepNumber || nextStepNumber == -1 {
+				nextStepNumber = step.Number
+			}
+		}
+	}
+	return steps, completed, nextStepNumber
+}
+
+func start(c *gin.Context) {
+	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
+	if isLoggedIn {
+		steps, completed, _ := getResultsForUser(currentUser.ID)
+		completedCount := 0
+		for _, step := range steps {
+			if len(step.Results) > 0 {
+				completedCount++
+			}
+		}
+
+		c.HTML(http.StatusOK, "start_loggedin.tmpl.html", gin.H{
+			"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Steps":          steps,
+			"Completed":      completed,
+			"CompletedCount": completedCount,
 		})
+	} else {
+		c.HTML(http.StatusOK, "start_notloggedin.tmpl.html", gin.H{})
 	}
 }
 
-func addPatient(c *gin.Context) {
-	_, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		name, _ := c.GetPostForm("name")
-		patientID := DB.AddPatient(name)
-
-		c.Redirect(http.StatusSeeOther, "/patient/"+H.Utoa(patientID))
-	}
-}
-
-func patient(c *gin.Context) {
+func nextStep(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
-		patientID, err := H.Atou(c.Param("id"))
-		H.ErrorCheck(err)
-
-		patient := DB.GetPatientByID(patientID)
-		encounters := DB.GetEncountersByPatientID(patientID)
-		c.HTML(http.StatusOK, "patient.tmpl.html", gin.H{
-			"Header":     gin.H{"CurrentUser": currentUser, "Request": c.Request},
-			"Patient":    patient,
-			"Encounters": encounters,
-		})
-	}
-}
-
-func addEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		patientIDString, found := c.GetPostForm("patientID")
-		if found {
-			patientID, err := H.Atou(patientIDString)
-			H.ErrorCheck(err)
-
-			encounterID := DB.AddEncounter(patientID, currentUser)
-			c.Redirect(http.StatusSeeOther, "/encounter/"+H.Utoa(encounterID)+"/edit")
+		_, completed, nextStepNumber := getResultsForUser(currentUser.ID)
+		if completed {
+			c.Redirect(http.StatusFound, "/start")
 		} else {
-			c.Redirect(http.StatusSeeOther, "/patientlist")
+			c.Redirect(http.StatusFound, fmt.Sprintf("/step/%d", nextStepNumber))
 		}
 	}
 }
 
-func encounter(c *gin.Context) {
+func step(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
-		encounterID, err := H.Atou(c.Param("id"))
+		stepnumber, err := strconv.Atoi(c.Param("number"))
 		H.ErrorCheck(err)
+		step, found := DB.GetStepByNumber(stepnumber)
 
-		encounter := DB.GetEncounterByID(encounterID)
-		patient := DB.GetPatientByID(encounter.PatientID)
-		user, _ := DB.GetUserByID(encounter.UserID)
-		c.HTML(http.StatusOK, "encounter.tmpl.html", gin.H{
-			"Header":    gin.H{"CurrentUser": currentUser, "Request": c.Request},
-			"Encounter": encounter,
-			"Patient":   patient,
-			"User":      user,
-		})
-	}
-}
+		if !found {
+			c.Redirect(http.StatusSeeOther, "/start")
+		} else {
+			if c.Request.Method == "GET" {
+				c.HTML(http.StatusOK, step.Template, gin.H{
+					"Header": gin.H{"CurrentUser": currentUser, "Request": c.Request},
+					"Step":   step,
+				})
+			} else if c.Request.Method == "POST" {
+				switch step.Type {
+				case "DescribeImage":
+					description, _ := c.GetPostForm("description")
+					DB.SaveStepResult(currentUser, step, description)
+				}
 
-func editEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		encounterID, err := H.Atou(c.Param("id"))
-		H.ErrorCheck(err)
-
-		encounter := DB.GetEncounterByID(encounterID)
-		if currentUser.ID != encounter.UserID {
-			c.Redirect(http.StatusSeeOther, "/encounter/"+H.Utoa(encounter.ID))
-		}
-
-		patient := DB.GetPatientByID(encounter.PatientID)
-		user, _ := DB.GetUserByID(encounter.UserID)
-		c.HTML(http.StatusOK, "encounter_edit.tmpl.html", gin.H{
-			"Header":    gin.H{"CurrentUser": currentUser, "Request": c.Request},
-			"Encounter": encounter,
-			"Patient":   patient,
-			"User":      user,
-		})
-	}
-}
-
-func saveEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		encounterID, err := H.Atou(c.Param("id"))
-		H.ErrorCheck(err)
-
-		encounter := DB.GetEncounterByID(encounterID)
-		if currentUser.ID == encounter.UserID {
-			subjective, _ := c.GetPostForm("subjective")
-			objective, _ := c.GetPostForm("objective")
-			ddx1, _ := c.GetPostForm("ddx1")
-			ddx2, _ := c.GetPostForm("ddx2")
-			ddx3, _ := c.GetPostForm("ddx3")
-			encounter.Subjective = subjective
-			encounter.Objective = objective
-			encounter.DDx1 = ddx1
-			encounter.DDx2 = ddx2
-			encounter.DDx3 = ddx3
-
-			DB.SaveEncounter(&encounter)
-		}
-	}
-	c.Redirect(http.StatusSeeOther, "/encounter/"+c.Param("id"))
-}
-
-func deleteEncounter(c *gin.Context) {
-	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
-	if isLoggedIn {
-		encounterID, err := H.Atou(c.Param("id"))
-		H.ErrorCheck(err)
-
-		encounter := DB.GetEncounterByID(encounterID)
-		if currentUser.ID == encounter.UserID {
-			DB.DeleteEncounter(&encounter)
+				c.Redirect(http.StatusFound, "/nextstep")
+			}
 		}
 	}
 }

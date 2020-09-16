@@ -26,6 +26,6 @@ func ConnectGORM() (*gorm.DB, error) {
 		fmt.Printf("Connecting to %s\n", addr)
 	}
 
-	dsn := "root:1234@tcp(" + addr + ":3306)/myemr?parseTime=true"
+	dsn := "root:1234@tcp(" + addr + ":3306)/imagedescription?parseTime=true"
 	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
 }

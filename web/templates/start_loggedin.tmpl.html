@@ -1,0 +1,25 @@
+<html>
+    <body>
+        {{ template "header.tmpl.html" .Header }}
+
+        {{ range .Steps }}
+            Step {{ .Number }} <br>
+            {{ if eq 0 (len .Results) }}
+                &nbsp;&nbsp; Not yet completed. <br>
+            {{ else }}
+                {{ range .Results }}
+                    &nbsp;&nbsp; Completed at {{ .CompletedAtTime }} <br>
+                {{ end }}
+            {{ end }}
+        {{ end }}
+
+        <br>
+
+        {{ .CompletedCount }} of {{ len .Steps }} steps completed.
+        {{ if .Completed }}
+            <br>Thank you for participating!
+        {{ else }}
+            <br><a href="/nextstep">Start the next step</a>
+        {{ end }}
+    </body>
+</html>

@@ -1,0 +1,14 @@
+<html>
+    <body>
+        {{ template "header.tmpl.html" .Header }}
+        <img height=50% width="auto" src="{{ .Step.Data }}"><br>
+        <form action="/step/{{ .Step.Number }}">
+            Please describe what you see:<br>
+            <textarea id="description" name="description" rows="10" cols="80"></textarea><br>
+            <input type="submit" value="Submit" formmethod="POST">
+
+            <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
+            <input type="hidden" id="stepnumber" name="stepnumber" value="{{ .Step.Number }}">
+        </form>
+    </body>
+</html>
