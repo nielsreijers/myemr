@@ -2,11 +2,13 @@
     <body>
         {{ template "header.tmpl.html" .Header }}
 
-        <img height=50% width="auto" src="{{ .Step.Data }}"><br>
+        Please type the following text into the text box below:<br>
+        <textarea rows="10" cols="80" disabled=true>
+            {{ .Step.Data }}
+        </textarea>
         <form action="/step/{{ .Step.Number }}">
-            Please describe what you see:<br>
             {{ if eq 0 (len .Step.Results) }}
-                <textarea id="result" name="result" rows="10" cols="80"></textarea><br>
+                <textarea id="result" name="result" rows="10" cols="80" onpaste="return false;"></textarea><br>
                 <input type="submit" value="Submit" formmethod="POST">
             {{ else }}
                 <textarea id="result" name="result" rows="10" cols="80" disabled=true>{{ (index .Step.Results 0).Result }}</textarea><br>

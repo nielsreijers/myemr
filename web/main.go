@@ -132,11 +132,8 @@ func step(c *gin.Context) {
 					"CompletedCount": completedCount,
 				})
 			} else if c.Request.Method == "POST" {
-				switch step.Type {
-				case "DescribeImage":
-					description, _ := c.GetPostForm("description")
-					DB.SaveStepResult(currentUser, step, description)
-				}
+				result, _ := c.GetPostForm("result")
+				DB.SaveStepResult(currentUser, step, result)
 
 				c.Redirect(http.StatusFound, "/nextstep")
 			}
