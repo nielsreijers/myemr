@@ -5,8 +5,13 @@
         <img height=50% width="auto" src="{{ .Step.Data }}"><br>
         <form action="/step/{{ .Step.Number }}">
             Please describe what you see:<br>
-            <textarea id="description" name="description" rows="10" cols="80"></textarea><br>
-            <input type="submit" value="Submit" formmethod="POST">
+            {{ if eq 0 (len .Step.Results) }}
+                <textarea id="description" name="description" rows="10" cols="80"></textarea><br>
+                <input type="submit" value="Submit" formmethod="POST">
+            {{ else }}
+                <textarea id="description" name="description" rows="10" cols="80" disabled=true>{{ (index .Step.Results 0).Result }}</textarea><br>
+                Step already completed.
+            {{ end }}
 
             <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
             <input type="hidden" id="stepnumber" name="stepnumber" value="{{ .Step.Number }}">
@@ -15,5 +20,6 @@
         <br>
         {{ .CompletedCount }} of {{ .TotalCount }} steps completed.<br>
         <a href="/start">Back to list</a>
+        {{.Step.Results.Result}}
     </body>
 </html>

@@ -3,7 +3,7 @@
         {{ template "header.tmpl.html" .Header }}
 
         {{ range .Steps }}
-            Step {{ .Number }} <br>
+            Step <a href="/step/{{ .Number }}">{{ .Number }}</a> <br>
             {{ if eq 0 (len .Results) }}
                 &nbsp;&nbsp; Not yet completed. <br>
             {{ else }}

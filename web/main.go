@@ -74,10 +74,11 @@ func getResultsForUser(userID uint) ([]DB.Step, int, int) {
 	nextStepNumber := -1
 	for _, step := range steps {
 		if len(step.Results) == 0 {
-			completedCount++
 			if step.Number < nextStepNumber || nextStepNumber == -1 {
 				nextStepNumber = step.Number
 			}
+		} else {
+			completedCount++
 		}
 	}
 	return steps, completedCount, nextStepNumber
@@ -116,7 +117,7 @@ func step(c *gin.Context) {
 	if isLoggedIn {
 		stepnumber, err := strconv.Atoi(c.Param("number"))
 		H.ErrorCheck(err)
-		step, found := DB.GetStepByNumber(stepnumber)
+		step, found := DB.GetStepByNumberWithResult(stepnumber, currentUser.ID)
 		steps, completedCount, _ := getResultsForUser(currentUser.ID)
 
 		if !found {

@@ -125,11 +125,11 @@ func GetSteps() []Step {
 	return steps
 }
 
-func GetStepByNumber(number int) (Step, bool) {
+func GetStepByNumberWithResult(number int, userID uint) (Step, bool) {
 	db := GetDbConnection()
 
 	var step Step
-	result := db.First(&step, "number = ?", number)
+	result := db.Preload("Results", "user_id = ?", userID).First(&step, "number = ?", number)
 
 	if result.RowsAffected == 1 {
 		return step, true
