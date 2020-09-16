@@ -8,7 +8,7 @@
                 &nbsp;&nbsp; Not yet completed. <br>
             {{ else }}
                 {{ range .Results }}
-                    &nbsp;&nbsp; Completed at {{ .CompletedAtTime }} <br>
+                    &nbsp;&nbsp; Completed at {{ .CompletedAtTime | formatDateTime }} <br>
                 {{ end }}
             {{ end }}
         {{ end }}

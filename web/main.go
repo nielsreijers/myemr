@@ -67,37 +67,31 @@ func main() {
 	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
 }
 
-func getResultsForUser(userID uint) ([]DB.Step, bool, int) {
+func getResultsForUser(userID uint) ([]DB.Step, int, int) {
 	steps := DB.GetStepsWithResultsByUserID(userID)
 
-	completed := true
+	completedCount := 0
 	nextStepNumber := -1
 	for _, step := range steps {
 		if len(step.Results) == 0 {
-			completed = false
+			completedCount++
 			if step.Number < nextStepNumber || nextStepNumber == -1 {
 				nextStepNumber = step.Number
 			}
 		}
 	}
-	return steps, completed, nextStepNumber
+	return steps, completedCount, nextStepNumber
 }
 
 func start(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
 	if isLoggedIn {
-		steps, completed, _ := getResultsForUser(currentUser.ID)
-		completedCount := 0
-		for _, step := range steps {
-			if len(step.Results) > 0 {
-				completedCount++
-			}
-		}
+		steps, completedCount, _ := getResultsForUser(currentUser.ID)
 
 		c.HTML(http.StatusOK, "start_loggedin.tmpl.html", gin.H{
 			"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request},
 			"Steps":          steps,
-			"Completed":      completed,
+			"Completed":      completedCount == len(steps),
 			"CompletedCount": completedCount,
 		})
 	} else {
@@ -108,8 +102,8 @@ func start(c *gin.Context) {
 func nextStep(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
-		_, completed, nextStepNumber := getResultsForUser(currentUser.ID)
-		if completed {
+		steps, completedCount, nextStepNumber := getResultsForUser(currentUser.ID)
+		if completedCount == len(steps) {
 			c.Redirect(http.StatusFound, "/start")
 		} else {
 			c.Redirect(http.StatusFound, fmt.Sprintf("/step/%d", nextStepNumber))
@@ -123,14 +117,17 @@ func step(c *gin.Context) {
 		stepnumber, err := strconv.Atoi(c.Param("number"))
 		H.ErrorCheck(err)
 		step, found := DB.GetStepByNumber(stepnumber)
+		steps, completedCount, _ := getResultsForUser(currentUser.ID)
 
 		if !found {
 			c.Redirect(http.StatusSeeOther, "/start")
 		} else {
 			if c.Request.Method == "GET" {
 				c.HTML(http.StatusOK, step.Template, gin.H{
-					"Header": gin.H{"CurrentUser": currentUser, "Request": c.Request},
-					"Step":   step,
+					"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request},
+					"Step":           step,
+					"TotalCount":     len(steps),
+					"CompletedCount": completedCount,
 				})
 			} else if c.Request.Method == "POST" {
 				switch step.Type {

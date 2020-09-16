@@ -1,6 +1,7 @@
 <html>
     <body>
         {{ template "header.tmpl.html" .Header }}
+
         <img height=50% width="auto" src="{{ .Step.Data }}"><br>
         <form action="/step/{{ .Step.Number }}">
             Please describe what you see:<br>
@@ -10,5 +11,9 @@
             <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
             <input type="hidden" id="stepnumber" name="stepnumber" value="{{ .Step.Number }}">
         </form>
+
+        <br>
+        {{ .CompletedCount }} of {{ .TotalCount }} steps completed.<br>
+        <a href="/start">Back to list</a>
     </body>
 </html>

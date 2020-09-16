@@ -142,7 +142,7 @@ func GetStepsWithResultsByUserID(userID uint) []Step {
 	db := GetDbConnection()
 
 	var steps []Step
-	result := db.Preload("Results", "user_id = ?", userID).Find(&steps)
+	result := db.Preload("Results", "user_id = ?", userID).Order("number").Find(&steps)
 	H.ErrorCheck(result.Error)
 
 	return steps
