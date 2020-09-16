@@ -148,6 +148,12 @@ func GetStepsWithResultsByUserID(userID uint) []Step {
 	return steps
 }
 
+func DeleteStepResult(stepResultID uint) {
+	db := GetDbConnection()
+
+	db.Delete(&StepResult{}, stepResultID)
+}
+
 func SaveStepResult(user User, step Step, resultString string) {
 	db := GetDbConnection()
 

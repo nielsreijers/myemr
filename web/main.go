@@ -54,6 +54,7 @@ func main() {
 	router.GET("/nextstep", nextStep)
 	router.GET("/step/:number", step)
 	router.POST("/step/:number", step)
+	router.GET("/redostep/:number", redoStep)
 
 	router.GET("/start", start)
 
@@ -140,5 +141,18 @@ func step(c *gin.Context) {
 				c.Redirect(http.StatusFound, "/nextstep")
 			}
 		}
+	}
+}
+
+func redoStep(c *gin.Context) {
+	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
+	if isLoggedIn {
+		stepnumber, err := strconv.Atoi(c.Param("number"))
+		H.ErrorCheck(err)
+		step, found := DB.GetStepByNumberWithResult(stepnumber, currentUser.ID)
+		if found && len(step.Results) > 0 {
+			DB.DeleteStepResult(step.Results[0].ID)
+		}
+		c.Redirect(http.StatusSeeOther, fmt.Sprintf("/step/%d", stepnumber))
 	}
 }

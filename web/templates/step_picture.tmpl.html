@@ -10,7 +10,7 @@
                 <input type="submit" value="Submit" formmethod="POST">
             {{ else }}
                 <textarea id="description" name="description" rows="10" cols="80" disabled=true>{{ (index .Step.Results 0).Result }}</textarea><br>
-                Step already completed.
+                Step already completed. <a href="/redostep/{{ .Step.Number }}">Redo step.</a>
             {{ end }}
 
             <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
@@ -20,6 +20,5 @@
         <br>
         {{ .CompletedCount }} of {{ .TotalCount }} steps completed.<br>
         <a href="/start">Back to list</a>
-        {{.Step.Results.Result}}
     </body>
 </html>
