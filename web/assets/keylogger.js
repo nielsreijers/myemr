@@ -3,6 +3,8 @@ var kl_events = [];
 var kl_debug = false;
 
 function kl_logKeyMouseEvent(evt) {
+  let unixtime = Date.now()
+
   // Don't log username and password
   if (window.location.href.indexOf("login.php") == -1
       && window.location.href.indexOf("changepassword.php") == -1) {
@@ -27,12 +29,13 @@ function kl_logKeyMouseEvent(evt) {
             y = evt.clientY;
             break;
     }
-    kl_events.push({ unixtime: Date.now(), type: type, data: data, x: x, y: y });
+    kl_events.push({ unixtime: unixtime, type: type, data: data, x: x, y: y });
   }
 }
 
 function kl_logEvent(type, data) {
-  kl_events.push({ unixtime: Date.now(), type: type, data: data, x: -1, y: -1 });
+  let unixtime = Date.now()
+  kl_events.push({ unixtime: unixtime, type: type, data: data, x: -1, y: -1 });
 }
 
 function kl_flush() {
