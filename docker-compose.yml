@@ -9,7 +9,7 @@ services:
         USER_ID: ${USER_ID:?Please set the USER_ID variable}
         GROUP_ID: ${GROUP_ID:?Please set the GROUP_ID variable}
     ports:
-      - "5152:3306"
+      - "5156:3306"
     volumes:
       - type: bind
         source: ${MYEMR_DATADIR:?Please set the MYEMR_DATADIR variable}/db
@@ -26,7 +26,7 @@ services:
         USER_ID: ${USER_ID:?Please set the USER_ID variable}
         GROUP_ID: ${GROUP_ID:?Please set the GROUP_ID variable}
     ports:
-      - "5151:5001"
+      - "5155:5001"
     volumes:
       - type: bind
         source: ${MYEMR_DATADIR:?Please set the MYEMR_DATADIR variable}/videos
