@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   db:
-    container_name: myemr-db
+    container_name: imagedescription-db
     build:
       context: ./db
       dockerfile: Dockerfile
@@ -18,7 +18,7 @@ services:
   web:
     depends_on:
       - db
-    container_name: myemr-web
+    container_name: imagedescription-web
     build:
       context: ./web
       dockerfile: Dockerfile
