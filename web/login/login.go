@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/google/uuid"
+
 	"github.com/gin-gonic/gin"
 
 	DB "myemr/db"
@@ -22,12 +24,13 @@ func GetLoggedOnUserOrRedirect(c *gin.Context) (DB.User, bool) {
 }
 
 func GetLoggedOnUser(c *gin.Context) (DB.User, bool) {
-	cookie, err := c.Request.Cookie("user")
-	if err == nil && cookie.Value != "" {
-		userID, err := H.Atou(cookie.Value)
+	cookieUserID, err1 := c.Request.Cookie("user")
+	cookieToken, err2 := c.Request.Cookie("token")
+	if err1 == nil && err2 == nil && cookieUserID.Value != "" {
+		userID, err := H.Atou(cookieUserID.Value)
 		if err == nil {
 			user, found := DB.GetUserByID(userID)
-			if found {
+			if found && user.Token == cookieToken.Value {
 				return user, true
 			}
 		}
@@ -41,15 +44,25 @@ func checkPassword(password, salt, storedPassword string) bool {
 	return storedPassword == hashedHex
 }
 
-func setCookie(c *gin.Context, userID uint) {
-	var cookie http.Cookie
-	cookie.Name = "user"
-	cookie.Value = H.Utoa(userID)
-	http.SetCookie(c.Writer, &cookie)
+func setLoginCookies(c *gin.Context, user DB.User) {
+	var cookieUserID http.Cookie
+	cookieUserID.Name = "user"
+	cookieUserID.Value = H.Utoa(user.ID)
+	http.SetCookie(c.Writer, &cookieUserID)
+
+	var cookieToken http.Cookie
+	cookieToken.Name = "token"
+	cookieToken.Value = user.Token
+	http.SetCookie(c.Writer, &cookieToken)
 }
 
-func clearCookie(c *gin.Context) {
+func clearLoginCookies(c *gin.Context) {
 	cookie, err := c.Request.Cookie("user")
+	if err == nil {
+		cookie.Value = ""
+		http.SetCookie(c.Writer, cookie)
+	}
+	cookie, err = c.Request.Cookie("token")
 	if err == nil {
 		cookie.Value = ""
 		http.SetCookie(c.Writer, cookie)
@@ -69,7 +82,9 @@ func Login(c *gin.Context) {
 		} else {
 			if checkPassword(password, user.Salt, user.Password) {
 				// Login successful
-				setCookie(c, user.ID)
+				user.Token = uuid.New().String()
+				setLoginCookies(c, user)
+				DB.SaveUser(user)
 				c.Redirect(http.StatusSeeOther, "/start")
 			} else {
 				c.HTML(http.StatusOK, "login.tmpl.html", gin.H{"Message": "Login failed"})
@@ -79,7 +94,7 @@ func Login(c *gin.Context) {
 }
 
 func Logout(c *gin.Context) {
-	clearCookie(c)
+	clearLoginCookies(c)
 	c.Redirect(http.StatusTemporaryRedirect, "/start")
 }
 
@@ -126,7 +141,12 @@ func CreateAccount(c *gin.Context) {
 					password := hex.EncodeToString(hashedBinary[:])
 					userID := DB.AddUser(username, salt, password)
 
-					setCookie(c, userID)
+					// Log in the new user
+					user, _ := DB.GetUserByID(userID)
+					user.Token = uuid.New().String()
+					DB.SaveUser(user)
+
+					setLoginCookies(c, user)
 					c.Redirect(http.StatusSeeOther, "/start")
 				} else {
 					c.HTML(http.StatusOK, "createaccount.tmpl.html", gin.H{"Message": "Passwords don't match"})

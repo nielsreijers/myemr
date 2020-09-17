@@ -14,6 +14,7 @@ type User struct {
 	Username string `gorm:"unique;not null"`
 	Salt     string `gorm:"not null"`
 	Password string `gorm:"not null"`
+	Token    string ``
 	Results  []StepResult
 }
 
@@ -87,7 +88,6 @@ func GetUserByID(userID uint) (User, bool) {
 
 	var user User
 	result := db.First(&user, userID)
-	H.ErrorCheck(result.Error)
 
 	if result.RowsAffected == 1 {
 		return user, true
