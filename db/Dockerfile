@@ -19,5 +19,5 @@ RUN if [ ${USER_ID:-0} -ne 0 ] && [ ${GROUP_ID:-0} -ne 0 ]; then \
 
 USER mysql
 
-ENV MYSQL_DATABASE=myemr
+ENV MYSQL_DATABASE=imagedescription
 ENV MYSQL_ROOT_PASSWORD=1234

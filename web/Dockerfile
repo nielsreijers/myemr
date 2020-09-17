@@ -20,7 +20,7 @@ COPY ./templates ./templates
 COPY ./wait-for-it.sh ./wait-for-it.sh
 COPY --from=builder /go/src/myemr/myemr .
 
-ENV MYSQL=myemr-db
+ENV MYSQL=imagedescription-db
 
 ARG USER_ID
 ARG GROUP_ID
