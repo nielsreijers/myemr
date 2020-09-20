@@ -35,6 +35,7 @@ type StepResult struct {
 	Step            Step      ``
 	CompletedAtTime time.Time `gorm:"not null"`
 	Result          string    `gorm:"not null"`
+	UUID            []byte    `gorm:"not null;type:binary(16)"`
 }
 
 func checkConnection(gormdb *gorm.DB) bool {
@@ -154,7 +155,7 @@ func DeleteStepResult(stepResultID uint) {
 	db.Delete(&StepResult{}, stepResultID)
 }
 
-func SaveStepResult(user User, step Step, resultString string) {
+func SaveStepResult(user User, step Step, resultString string, uuid []byte) {
 	db := GetDbConnection()
 
 	stepresult := StepResult{
@@ -162,6 +163,7 @@ func SaveStepResult(user User, step Step, resultString string) {
 		StepID:          step.ID,
 		Result:          resultString,
 		CompletedAtTime: time.Now(),
+		UUID:            uuid,
 	}
 
 	result := db.Create(&stepresult)

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/google/uuid"
+	"github.com/satori/uuid"
 
 	"github.com/gin-gonic/gin"
 
@@ -82,7 +82,7 @@ func Login(c *gin.Context) {
 		} else {
 			if checkPassword(password, user.Salt, user.Password) {
 				// Login successful
-				user.Token = uuid.New().String()
+				user.Token = uuid.NewV4().String()
 				setLoginCookies(c, user)
 				DB.SaveUser(user)
 				c.Redirect(http.StatusSeeOther, "/start")
@@ -143,7 +143,7 @@ func CreateAccount(c *gin.Context) {
 
 					// Log in the new user
 					user, _ := DB.GetUserByID(userID)
-					user.Token = uuid.New().String()
+					user.Token = uuid.NewV4().String()
 					DB.SaveUser(user)
 
 					setLoginCookies(c, user)

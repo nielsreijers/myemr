@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/satori/uuid"
 	"github.com/thinkerou/favicon"
 
 	Config "myemr/config"
@@ -91,7 +92,7 @@ func start(c *gin.Context) {
 		steps, completedCount, _ := getResultsForUser(currentUser.ID)
 
 		c.HTML(http.StatusOK, "start_loggedin.tmpl.html", gin.H{
-			"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request},
+			"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request, "UUID": uuid.NewV4().String()},
 			"Steps":          steps,
 			"Completed":      completedCount == len(steps),
 			"CompletedCount": completedCount,
@@ -126,14 +127,18 @@ func step(c *gin.Context) {
 		} else {
 			if c.Request.Method == "GET" {
 				c.HTML(http.StatusOK, step.Template, gin.H{
-					"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request},
+					"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request, "UUID": uuid.NewV4().String()},
 					"Step":           step,
 					"TotalCount":     len(steps),
 					"CompletedCount": completedCount,
 				})
 			} else if c.Request.Method == "POST" {
 				result, _ := c.GetPostForm("result")
-				DB.SaveStepResult(currentUser, step, result)
+				uuidString, _ := c.GetPostForm("uuid")
+				uuidArray, err := H.StringToUuidArray(uuidString)
+				H.ErrorCheck(err)
+
+				DB.SaveStepResult(currentUser, step, result, uuidArray)
 
 				c.Redirect(http.StatusFound, "/nextstep")
 			}

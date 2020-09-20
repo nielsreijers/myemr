@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-
 	"gorm.io/gorm"
 
 	DB "myemr/db"
@@ -23,18 +22,16 @@ type LoggerTrace struct {
 	User     DB.User   ``
 	Time     time.Time `gorm:"not null"`
 	UnixTime int64     `gorm:"not null"`
-	Type     string
-	Data     string
-	X        int
-	Y        int
+	Type     string    ``
+	Data     string    ``
+	X        int       ``
+	Y        int       ``
+	UUID     []byte    `gorm:"not null;type:binary(16)"`
 }
 
-type KeyLoggerEvent struct {
-	UnixTime int64
-	Type     string
-	Data     string
-	X        int
-	Y        int
+type Request struct {
+	Uuid   string
+	Events []LoggerTrace
 }
 
 func AutoMigrate() {
@@ -48,20 +45,23 @@ func KeyLogger(c *gin.Context) {
 		body, err := c.GetRawData()
 		H.ErrorCheck(err)
 
-		var events []LoggerTrace
-		err = json.Unmarshal([]byte(body), &events)
+		var req Request
+		err = json.Unmarshal([]byte(body), &req)
 		H.ErrorCheck(err)
 
-		for i, event := range events {
-			events[i].UserID = currentUser.ID
+		uuidArray, err := H.StringToUuidArray(req.Uuid)
+
+		for i, event := range req.Events {
+			req.Events[i].UserID = currentUser.ID
 			sec := event.UnixTime / 1000
 			nsec := (event.UnixTime % 1000) * 1000 * 1000
 			time := time.Unix(sec, nsec)
-			events[i].Time = time
+			req.Events[i].Time = time
+			req.Events[i].UUID = uuidArray
 		}
 
 		db := DB.GetDbConnection()
-		db.Create(&events)
+		db.Create(&req.Events)
 	} else {
 		c.Status(http.StatusUnauthorized)
 	}

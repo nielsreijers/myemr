@@ -2,6 +2,8 @@ package helpers
 
 import (
 	"strconv"
+
+	"github.com/satori/uuid"
 )
 
 func ErrorCheck(err error) {
@@ -20,4 +22,12 @@ func Atou(s string) (uint, error) {
 	} else {
 		return 0, err
 	}
+}
+
+func StringToUuidArray(uuidString string) ([]byte, error) {
+	uuidObj, err := uuid.FromString(uuidString)
+	if err == nil {
+		return uuidObj.MarshalBinary()
+	}
+	return nil, err
 }

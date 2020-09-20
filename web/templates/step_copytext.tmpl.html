@@ -15,6 +15,7 @@
                 Step already completed. <a href="/redostep/{{ .Step.Number }}">Redo step.</a>
             {{ end }}
 
+            <input type="hidden" id="uuid" name="uuid" value="{{ .Header.UUID }}">
             <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
             <input type="hidden" id="stepnumber" name="stepnumber" value="{{ .Step.Number }}">
         </form>

@@ -4,6 +4,9 @@
         window.location.href = "/";
     }
 
+    // Set the new UUID for this page visit
+    parent.kl_uuid = "{{ .UUID }}"
+
     parent.kl_logEvent("pageload", "{{ .Request.URL.Path }}");
     parent.vl_startNewRecording(window.location.pathname.substr(1).replace(/\//g, "_")); // remove the leading '/', replace remaining '/'s with '_'
 
