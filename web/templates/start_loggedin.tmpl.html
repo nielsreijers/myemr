@@ -2,18 +2,31 @@
     <body>
         {{ template "header.tmpl.html" .Header }}
 
+        <table border="1">
+            <tr>
+              <th>Step</th>
+              <th>Type</th>
+              <th>Completed</th>
+              <th>Action</th>
+            </tr>
         {{ range .Steps }}
-            Step <a href="/step/{{ .Number }}">{{ .Number }}</a> ({{ .Type }}) <br>
-            {{ if eq 0 (len .Results) }}
-                &nbsp;&nbsp; Not yet completed. <br>
-            {{ else }}
-                {{ range .Results }}
-                    &nbsp;&nbsp; Completed at {{ .CompletedAtTime | formatDateTime }} <br>
+            <tr>
+                <td>{{ .Number }}</td>
+                <td>{{ .Type }}</td>
+                {{ if eq 0 (len .Results) }}
+                    <td>Not yet completed.</td>
+                    <td><a href="/step/{{ .Number }}">Do step</a></td>
+                {{ else }}
+                    <td>
+                    {{ range .Results }}
+                        Completed at {{ .CompletedAtTime | formatDateTime }} <br>
+                    {{ end }}
+                    </td>
+                    <td><a href="/step/{{ .Number }}">View step</a>&nbsp;&nbsp;&nbsp;<a href="/redostep/{{ .Number }}">Redo step</a></td>
                 {{ end }}
-            {{ end }}
+            </tr>
         {{ end }}
-
-        <br>
+        </table>
 
         {{ .CompletedCount }} of {{ len .Steps }} steps completed.
         {{ if .Completed }}
