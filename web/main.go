@@ -53,6 +53,7 @@ func main() {
 	router.GET("/createaccount", L.CreateAccount)
 	router.POST("/createaccount", L.CreateAccount)
 	router.GET("/nextstep", nextStep)
+	router.GET("/nextstep/:afternumber", nextStep)
 	router.GET("/step/:number", step)
 	router.POST("/step/:number", step)
 	router.GET("/redostep/:number", redoStep)
@@ -69,27 +70,38 @@ func main() {
 	router.RunTLS(addr, "./cert/server.pem", "./cert/server.key")
 }
 
-func getResultsForUser(userID uint) ([]DB.Step, int, int) {
+// Returns the first step that has not yet been completed.
+// If preferAfterNumber > 0 we first try to find the first uncompleted step with a higher number.
+// If this can't be found, then the first uncompleted step below this threshold is returned.
+func getResultsForUser(userID uint, preferAfterNumber int) ([]DB.Step, int, int) {
 	steps := DB.GetStepsWithResultsByUserID(userID)
 
 	completedCount := 0
 	nextStepNumber := -1
+	nextPreferredStepNumber := -1
 	for _, step := range steps {
 		if len(step.Results) == 0 {
-			if step.Number < nextStepNumber || nextStepNumber == -1 {
+			if nextStepNumber == -1 || step.Number < nextStepNumber {
 				nextStepNumber = step.Number
+			}
+			if step.Number > preferAfterNumber && (nextPreferredStepNumber == -1 || step.Number < nextPreferredStepNumber) {
+				nextPreferredStepNumber = step.Number
 			}
 		} else {
 			completedCount++
 		}
 	}
-	return steps, completedCount, nextStepNumber
+	if nextPreferredStepNumber > -1 {
+		return steps, completedCount, nextPreferredStepNumber
+	} else {
+		return steps, completedCount, nextStepNumber
+	}
 }
 
 func start(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
 	if isLoggedIn {
-		steps, completedCount, _ := getResultsForUser(currentUser.ID)
+		steps, completedCount, _ := getResultsForUser(currentUser.ID, 0)
 
 		c.HTML(http.StatusOK, "start_loggedin.tmpl.html", gin.H{
 			"Header":         gin.H{"CurrentUser": currentUser, "Request": c.Request, "UUID": uuid.NewV4().String()},
@@ -105,7 +117,14 @@ func start(c *gin.Context) {
 func nextStep(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUserOrRedirect(c)
 	if isLoggedIn {
-		steps, completedCount, nextStepNumber := getResultsForUser(currentUser.ID)
+		s := c.Param("afternumber")
+		if s == "" {
+			s = "0"
+		}
+		afterStepNumber, err := strconv.Atoi(s)
+		H.ErrorCheck(err)
+
+		steps, completedCount, nextStepNumber := getResultsForUser(currentUser.ID, afterStepNumber)
 		if completedCount == len(steps) {
 			c.Redirect(http.StatusFound, "/start")
 		} else {
@@ -120,7 +139,7 @@ func step(c *gin.Context) {
 		stepnumber, err := strconv.Atoi(c.Param("number"))
 		H.ErrorCheck(err)
 		step, found := DB.GetStepByNumberWithResult(stepnumber, currentUser.ID)
-		steps, completedCount, _ := getResultsForUser(currentUser.ID)
+		steps, completedCount, _ := getResultsForUser(currentUser.ID, 0)
 
 		if !found {
 			c.Redirect(http.StatusSeeOther, "/start")
@@ -140,7 +159,7 @@ func step(c *gin.Context) {
 
 				DB.SaveStepResult(currentUser, step, result, uuidArray)
 
-				c.Redirect(http.StatusFound, "/nextstep")
+				c.Redirect(http.StatusFound, fmt.Sprintf("/nextstep/%d", stepnumber))
 			}
 		}
 	}
