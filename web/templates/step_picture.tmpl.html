@@ -1,6 +1,7 @@
 <html>
     <body>
         {{ template "header.tmpl.html" .Header }}
+        {{ template "typingdnalogger.tmpl.html" }}
 
         <img height=50% width="auto" src="{{ .Step.Data }}"><br>
         <form action="/step/{{ .Step.Number }}">

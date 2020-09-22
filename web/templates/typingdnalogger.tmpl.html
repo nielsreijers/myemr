@@ -1,0 +1,18 @@
+<script src="/assets/typingdna.js"></script>
+<script>
+tdna = new TypingDNA();
+tdna.addTarget('result');
+
+window.addEventListener('beforeunload', () => {
+    let pattern = tdna.getTypingPattern({type:0});
+    let quality =  tdna.getQuality(pattern);
+    // From https://api.typingdna.com/:
+    // A real number between 0 and 1. Values over 0.3 are acceptable, however a value over 0.7 shows good pattern strength.
+
+    if (quality > 0.3) {
+        parent.kl_logEvent("typingdna_0", pattern);
+        parent.kl_logEvent("typingdna_0_quality", ""+quality);
+        parent.kl_flush();
+    }
+});
+</script>
