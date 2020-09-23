@@ -20,7 +20,7 @@ function kl_logKeyMouseEvent(evt) {
     switch(type) {
         case "keydown":
         case "keyup":
-            data = evt.key;
+            data = evt.code;
             break;
         case "click":
         case "contextmenu":
