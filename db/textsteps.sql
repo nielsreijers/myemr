@@ -43,9 +43,46 @@ Ilkley went on to win the game 2-0. The team said it is now considering making a
 'step_copytext.tmpl.html',
 'Test charter flight from Manila lands at Hengchun
 
-A Philippine charter flight arrived at Pingtung County�s Hengchun Airport yesterday morning as part of a trial run on resuming passenger operations at the facility, the first passenger jet to land at the airport since 2014.
-Pingtung County Commissioner Pan Men-an was at the airport to watch the plane arrive and greet the pilots, albeit from a distance. �This is a historic moment and a milestone,� Pan said.
-�We hope the airline would secure the aviation rights to offer charter flight services, and that more travelers from neighboring countries could arrive via charter flights. In the long run, we plan to seek funding to revamp the airport�s facilities to ensure that it can operate sustainably,� Pan said.
+A Philippine charter flight arrived at Pingtung County�s Hengchun Airport yesterday morning as part of a trial run on resuming passenger operations at the facility, the first passenger jet to land at the airport since 2014.
+Pingtung County Commissioner Pan Men-an was at the airport to watch the plane arrive and greet the pilots, albeit from a distance. �This is a historic moment and a milestone,� Pan said.
+�We hope the airline would secure the aviation rights to offer charter flight services, and that more travelers from neighboring countries could arrive via charter flights. In the long run, we plan to seek funding to revamp the airport�s facilities to ensure that it can operate sustainably,� Pan said.
+'
+),
+(
+6,
+'text copy',
+'step_copytext.tmpl.html',
+'我的名字是李強，我11歲。我的家裡有四口人，他們分別是我的爸爸，我的媽媽，我的哥哥和我。我的哥哥和我在同一所學校，所以我們的書包和校服都是一樣的。
+
+我的爸爸是一位工程師，他最近很驕傲，因為他參與建設的港珠澳大橋開通了。這真是一項偉大的工程。
+
+我的媽媽一位教師，她很喜歡自己的工作。
+'
+),
+(
+7,
+'text copy',
+'step_copytext.tmpl.html',
+'艾瑪：你現在要去哪裡？
+麗麗：我去跑步。
+艾瑪 ：可是現在下雨了，你還要去嗎？
+麗麗：沒關係，我喜歡下雨，我可以穿著雨衣跑步。
+艾瑪 ：你真是個喜歡運動的人！
+'
+),
+(
+8,
+'text copy',
+'step_copytext.tmpl.html',
+'每週計劃
+
+大家好，我的名字是王楠。我是一名護士
+每天早晨7點50的時候，我會準時去上班。下午5點的時候，我會結束一天的工作回家。
+週一和周三晚上，我會閱讀喜歡的書。週四和周五晚上，我有英文課。偶爾，我也會看電視。
+週末，我會和朋友們一起逛街。週日，我會去健身房做運動。
+這週我不會去健身，因為天氣預報說，這週日會有大暴雨。
 '
 );
+
+
 
