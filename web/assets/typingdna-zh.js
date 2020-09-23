@@ -1,5 +1,7 @@
 /**
- * TypingDNA - Typing Biometrics JavaScript API
+ * TypingDNAzh - Typing Biometrics JavaScript API with CJK support.
+ * Modified from TypingDNA's typingdna.js
+ * 
  * https://www.typingdna.com/scripts/typingdna.js
  * https://api.typingdna.com/scripts/typingdna.js (alternative)
  *
@@ -22,7 +24,7 @@
  * limitations under the License.
  *
  * Typical usage:
- * var tdna = new TypingDNA(); // creates a new TypingDNA object and starts recording
+ * var tdna = new TypingDNAzh(); // creates a new TypingDNAzh object and starts recording
  * var typingPattern = tdna.getTypingPattern({type:1, text:"Hello5g21?*"});
  * returns a type 1 typing pattern (and continues recording afterwards)
  *
@@ -30,430 +32,507 @@
  * tdna.stop(); // ends recording and clears history stack (returns recording flag: false)
  * tdna.start(); // restarts the recording after a stop (returns recording flag: true)
  * tdna.reset(); // restarts the recording anytime, clears history stack and starts from scratch (returns nothing)
- * var typingPatternQuality = TypingDNA.getQuality(typingPattern); //returns the quality/strength of any typing pattern
+ * var typingPatternQuality = TypingDNAzh.getQuality(typingPattern); //returns the quality/strength of any typing pattern
  * (there is no need to initialize the class to do pattern quality checking)
  */
 
 /**
- * Creates a single instance (or a reference) of the TypingDNA class
- * @return {Object} Returns the single instance of the TypingDNA class.
- * @example var tdna = new TypingDNA();
+ * Creates a single instance (or a reference) of the TypingDNAzh class
+ * @return {Object} Returns the single instance of the TypingDNAzh class.
+ * @example var tdna = new TypingDNAzh();
  */
-function TypingDNA() {
-    if (TypingDNA.initialized !== true) {
-  
+function TypingDNAzh() {
+    if (TypingDNAzh.initialized !== true) {
       // MAIN FUNCTIONS //
-      TypingDNA.prototype.start = function() {
-        return TypingDNA.start.apply(this, arguments);
+      TypingDNAzh.prototype.start = function() {
+        return TypingDNAzh.start.apply(this, arguments);
       }
-      TypingDNA.prototype.stop = function() {
-        return TypingDNA.stop.apply(this, arguments);
+      TypingDNAzh.prototype.stop = function() {
+        return TypingDNAzh.stop.apply(this, arguments);
       }
-      TypingDNA.prototype.reset = function() {
-        return TypingDNA.reset.apply(this, arguments);
+      TypingDNAzh.prototype.reset = function() {
+        return TypingDNAzh.reset.apply(this, arguments);
       }
-      TypingDNA.prototype.addTarget = function() {
-        return TypingDNA.addTarget.apply(this, arguments);
+      TypingDNAzh.prototype.addTarget = function() {
+        return TypingDNAzh.addTarget.apply(this, arguments);
       }
-      TypingDNA.prototype.removeTarget = function() {
-        return TypingDNA.removeTarget.apply(this, arguments);
+      TypingDNAzh.prototype.removeTarget = function() {
+        return TypingDNAzh.removeTarget.apply(this, arguments);
       }
-      TypingDNA.prototype.getTypingPattern = function() {
-        return TypingDNA.getTypingPattern.apply(this, arguments);
+      TypingDNAzh.prototype.getTypingPattern = function() {
+        return TypingDNAzh.getTypingPattern.apply(this, arguments);
       }
-      TypingDNA.prototype.getMouseDiagram = function() {
-        return TypingDNA.getMouseDiagram.apply(this, arguments);
+      TypingDNAzh.prototype.getMouseDiagram = function() {
+        return TypingDNAzh.getMouseDiagram.apply(this, arguments);
       }
-      TypingDNA.prototype.startMouse = function() {
-        return TypingDNA.startMouse.apply(this, arguments);
+      TypingDNAzh.prototype.startMouse = function() {
+        return TypingDNAzh.startMouse.apply(this, arguments);
       }
-      TypingDNA.prototype.stopMouse = function() {
-        return TypingDNA.stopMouse.apply(this, arguments);
+      TypingDNAzh.prototype.stopMouse = function() {
+        return TypingDNAzh.stopMouse.apply(this, arguments);
       }
-      TypingDNA.prototype.getQuality = function() {
-        return TypingDNA.getQuality.apply(this, arguments);
+      TypingDNAzh.prototype.getQuality = function() {
+        return TypingDNAzh.getQuality.apply(this, arguments);
       }
-      TypingDNA.prototype.getLength = function() {
-        return TypingDNA.getLength.apply(this, arguments);
+      TypingDNAzh.prototype.getLength = function() {
+        return TypingDNAzh.getLength.apply(this, arguments);
       }
-      TypingDNA.prototype.isMobile = function() {
-        return TypingDNA.isMobile.apply(this, arguments);
+      TypingDNAzh.prototype.isMobile = function() {
+        return TypingDNAzh.isMobile.apply(this, arguments);
       }
-      TypingDNA.prototype.getTextId = function() {
-        return TypingDNA.getTextId.apply(this, arguments)
+      TypingDNAzh.prototype.getTextId = function() {
+        return TypingDNAzh.getTextId.apply(this, arguments)
       }
-  
+     
       // DEPRECATED FUNCTIONS //
-      TypingDNA.prototype.get = function() {
+      TypingDNAzh.prototype.get = function() {
         // deprecated in favor of getTypignPattern()
-        return TypingDNA.get.apply(this, arguments);
+        return TypingDNAzh.get.apply(this, arguments);
       }
-      TypingDNA.prototype.startDiagram = function() {
+      TypingDNAzh.prototype.startDiagram = function() {
         // deprecated in favor of start()
-        // return TypingDNA.startDiagram.apply(this, arguments);
+        // return TypingDNAzh.startDiagram.apply(this, arguments);
       }
-      TypingDNA.prototype.stopDiagram = function() {
+      TypingDNAzh.prototype.stopDiagram = function() {
         // deprecated in favor of stop()
-        // return TypingDNA.stopDiagram.apply(this, arguments);
+        // return TypingDNAzh.stopDiagram.apply(this, arguments);
       }
-      TypingDNA.prototype.getDiagram = function() {
+      TypingDNAzh.prototype.getDiagram = function() {
         // deprecated in favor of getTypignPattern()
-        return TypingDNA.getDiagram.apply(this, arguments);
+        return TypingDNAzh.getDiagram.apply(this, arguments);
       }
-      TypingDNA.prototype.getExtendedDiagram = function() {
+      TypingDNAzh.prototype.getExtendedDiagram = function() {
         // deprecated in favor of getTypignPattern()
-        return TypingDNA.getExtendedDiagram.apply(this, arguments);
+        return TypingDNAzh.getExtendedDiagram.apply(this, arguments);
       }
   
-      TypingDNA.initialized = true;
-      TypingDNA.prototype.maxHistoryLength = TypingDNA.maxHistoryLength;
-      TypingDNA.prototype.defaultHistoryLength = TypingDNA.defaultHistoryLength;
-      TypingDNA.prototype.maxSeekTime = TypingDNA.maxSeekTime;
-      TypingDNA.prototype.maxPressTime = TypingDNA.maxPressTime;
-      TypingDNA.version = 3.1;
-      TypingDNA.cookieId = 0;
-      TypingDNA.flags = 0;
-      TypingDNA.instance = this;
-      TypingDNA.document = document;
-      TypingDNA.ua = window.navigator.userAgent,
-        TypingDNA.platform = window.navigator.platform;
-      TypingDNA.maxHistoryLength = 2000;
-      TypingDNA.maxSeekTime = 1500;
-      TypingDNA.maxPressTime = 300;
-      TypingDNA.defaultHistoryLength = 160;
-      TypingDNA.spKeyCodes = [8, 13, 32];
-      TypingDNA.spKeyCodesObj = {
+      // CJK support NR 20200923
+      TypingDNAzh.codeToKeyCode = function(code) {
+          switch (code) {
+              case 'Backspace'    : return   8;
+              case 'Tab'          : return   9;
+              case 'Enter'        : return  13;
+              case 'ShiftLeft'    : return  16;
+              case 'ShiftRight'   : return  16;
+              case 'ControlLeft'  : return  17;
+              case 'ControlRight' : return  17;
+              case 'AltRight'     : return  18;
+              case 'Escape'       : return  27;
+              case 'Space'        : return  32;
+              case 'PageUp'       : return  33;
+              case 'PageDown'     : return  34;
+              case 'End'          : return  35;
+              case 'Home'         : return  36;
+              case 'ArrowLeft'    : return  37;
+              case 'ArrowUp'      : return  38;
+              case 'ArrowRight'   : return  39;
+              case 'ArrowDown'    : return  40;
+              case 'PrintScreen'  : return  44;
+              case 'Insert'       : return  45;
+              case 'Delete'       : return  46;
+              case 'Digit0'       : return  48;
+              case 'Digit1'       : return  49;
+              case 'Digit2'       : return  50;
+              case 'Digit3'       : return  51;
+              case 'Digit4'       : return  52;
+              case 'Digit5'       : return  53;
+              case 'Digit6'       : return  54;
+              case 'Digit7'       : return  55;
+              case 'Digit8'       : return  56;
+              case 'Digit9'       : return  57;
+              case 'KeyA'         : return  65;
+              case 'KeyB'         : return  66;
+              case 'KeyC'         : return  67;
+              case 'KeyD'         : return  68;
+              case 'KeyE'         : return  69;
+              case 'KeyF'         : return  70;
+              case 'KeyG'         : return  71;
+              case 'KeyH'         : return  72;
+              case 'KeyI'         : return  73;
+              case 'KeyJ'         : return  74;
+              case 'KeyK'         : return  75;
+              case 'KeyL'         : return  76;
+              case 'KeyM'         : return  77;
+              case 'KeyN'         : return  78;
+              case 'KeyO'         : return  79;
+              case 'KeyP'         : return  80;
+              case 'KeyQ'         : return  81;
+              case 'KeyR'         : return  82;
+              case 'KeyS'         : return  83;
+              case 'KeyT'         : return  84;
+              case 'KeyU'         : return  85;
+              case 'KeyV'         : return  86;
+              case 'KeyW'         : return  87;
+              case 'KeyX'         : return  88;
+              case 'KeyY'         : return  89;
+              case 'KeyZ'         : return  90;
+              case 'MetaLeft'     : return  91;
+              case 'Semicolon'    : return 186;
+              case 'Equal'        : return 187;
+              case 'Comma'        : return 188;
+              case 'Minus'        : return 189;
+              case 'Period'       : return 190;
+              case 'Slash'        : return 191;
+              case 'Backquote'    : return 192;
+              case 'BracketLeft'  : return 219;
+              case 'Backslash'    : return 220;
+              case 'BracketRight' : return 221;
+              case 'Quote'        : return 222;
+              case 'WakeUp'       : return 255;
+              default             : return 0;
+  
+          }
+      }
+  
+      TypingDNAzh.initialized = true;
+      TypingDNAzh.prototype.maxHistoryLength = TypingDNAzh.maxHistoryLength;
+      TypingDNAzh.prototype.defaultHistoryLength = TypingDNAzh.defaultHistoryLength;
+      TypingDNAzh.prototype.maxSeekTime = TypingDNAzh.maxSeekTime;
+      TypingDNAzh.prototype.maxPressTime = TypingDNAzh.maxPressTime;
+      TypingDNAzh.version = 3.1;
+      TypingDNAzh.cookieId = 0;
+      TypingDNAzh.flags = 0;
+      TypingDNAzh.instance = this;
+      TypingDNAzh.document = document;
+      TypingDNAzh.ua = window.navigator.userAgent,
+        TypingDNAzh.platform = window.navigator.platform;
+      TypingDNAzh.maxHistoryLength = 2000;
+      TypingDNAzh.maxSeekTime = 1500;
+      TypingDNAzh.maxPressTime = 300;
+      TypingDNAzh.defaultHistoryLength = 160;
+      TypingDNAzh.spKeyCodes = [8, 13, 32];
+      TypingDNAzh.spKeyCodesObj = {
         8: 1,
         13: 1,
         32: 1,
       };
-      TypingDNA.keyCodes = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+      TypingDNAzh.keyCodes = [65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
         32, 222, 188, 190, 186, 187, 189, 191, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57
       ];
-      TypingDNA.keyCodesObj = {}
-      var keyCodesLen = TypingDNA.keyCodes.length;
+      TypingDNAzh.keyCodesObj = {}
+      var keyCodesLen = TypingDNAzh.keyCodes.length;
       for (var i = 0; i < keyCodesLen; i++) {
-        TypingDNA.keyCodesObj[TypingDNA.keyCodes[i]] = 1;
+        TypingDNAzh.keyCodesObj[TypingDNAzh.keyCodes[i]] = 1;
       }
-      TypingDNA.pt1 = TypingDNA.ut1 = (new Date).getTime();
-      TypingDNA.wfk = [];
-      TypingDNA.sti = [];
-      TypingDNA.skt = [];
-      TypingDNA.recording = true;
-      TypingDNA.mouseRecording = true;
-      TypingDNA.mouseMoveRecording = false;
-      TypingDNA.spKeyRecording = true;
-      TypingDNA.diagramRecording = true;
-      TypingDNA.motionFixedData = true;
-      TypingDNA.motionArrayData = true;
-      TypingDNA.dwfk = [];
-      TypingDNA.dsti = [];
-      TypingDNA.dskt = [];
-      TypingDNA.drkc = [];
-      TypingDNA.dlastDownKey;
-      TypingDNA.prevKeyCode = 0;
-      TypingDNA.maxMoveDeltaTime = 600;
-      TypingDNA.maxScrollDeltaTime = 800;
-      TypingDNA.maxStopTime = 1500;
-      TypingDNA.maxClickTime = 600;
-      TypingDNA.maxMouseHistoryLength = 500;
-      TypingDNA.lastMouseMoveTime = TypingDNA.lastMouseDownTime = (new Date).getTime();
-      TypingDNA.stopTimes = [];
-      TypingDNA.clickTimes = [];
-      TypingDNA.lastMouseStop = false;
-      TypingDNA.zl = 0.0000001;
-      TypingDNA.ACInputLengths = {
+      TypingDNAzh.pt1 = TypingDNAzh.ut1 = (new Date).getTime();
+      TypingDNAzh.wfk = [];
+      TypingDNAzh.sti = [];
+      TypingDNAzh.skt = [];
+      TypingDNAzh.recording = true;
+      TypingDNAzh.mouseRecording = true;
+      TypingDNAzh.mouseMoveRecording = false;
+      TypingDNAzh.spKeyRecording = true;
+      TypingDNAzh.diagramRecording = true;
+      TypingDNAzh.motionFixedData = true;
+      TypingDNAzh.motionArrayData = true;
+      TypingDNAzh.dwfk = [];
+      TypingDNAzh.dsti = [];
+      TypingDNAzh.dskt = [];
+      TypingDNAzh.drkc = [];
+      TypingDNAzh.dlastDownKey;
+      TypingDNAzh.prevKeyCode = 0;
+      TypingDNAzh.maxMoveDeltaTime = 600;
+      TypingDNAzh.maxScrollDeltaTime = 800;
+      TypingDNAzh.maxStopTime = 1500;
+      TypingDNAzh.maxClickTime = 600;
+      TypingDNAzh.maxMouseHistoryLength = 500;
+      TypingDNAzh.lastMouseMoveTime = TypingDNAzh.lastMouseDownTime = (new Date).getTime();
+      TypingDNAzh.stopTimes = [];
+      TypingDNAzh.clickTimes = [];
+      TypingDNAzh.lastMouseStop = false;
+      TypingDNAzh.zl = 0.0000001;
+      TypingDNAzh.ACInputLengths = {
         inputs: [],
         lastLength: [],
       };
-      TypingDNA.targetIds = [];
-      TypingDNA.lastTarget = "";
-      TypingDNA.lastTargetFound = false;
-      TypingDNA.replaceMissingKeys = true;
-      TypingDNA.replaceMissingKeysPerc = 7;
-      TypingDNA.pressCalculated = false;
-      TypingDNA.pressRecorded = false;
+      TypingDNAzh.targetIds = [];
+      TypingDNAzh.lastTarget = "";
+      TypingDNAzh.lastTargetFound = false;
+      TypingDNAzh.replaceMissingKeys = true;
+      TypingDNAzh.replaceMissingKeysPerc = 7;
+      TypingDNAzh.pressCalculated = false;
+      TypingDNAzh.pressRecorded = false;
   
-      TypingDNA.keyDown = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.keyDown = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        var keyCode = e.keyCode;
-        if (TypingDNA.wfk[keyCode] === 1 || TypingDNA.dwfk[keyCode] === 1) {
+        var keyCode = TypingDNAzh.codeToKeyCode(e.code);
+        if (TypingDNAzh.wfk[keyCode] === 1 || TypingDNAzh.dwfk[keyCode] === 1) {
           //return;
         }
-        var t0 = TypingDNA.pt1;
-        TypingDNA.pt1 = (new Date).getTime();
-        var seekTotal = TypingDNA.pt1 - t0;
-        var startTime = TypingDNA.pt1;
-        if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
+        var t0 = TypingDNAzh.pt1;
+        TypingDNAzh.pt1 = (new Date).getTime();
+        var seekTotal = TypingDNAzh.pt1 - t0;
+        var startTime = TypingDNAzh.pt1;
+        if (TypingDNAzh.recording === true || (TypingDNAzh.spKeyCodesObj[keyCode] && TypingDNAzh.spKeyRecording === true)) {
           if (!e.shiftKey) {
-            TypingDNA.wfk[keyCode] = 1;
-            TypingDNA.skt[keyCode] = seekTotal;
-            TypingDNA.sti[keyCode] = startTime;
+            TypingDNAzh.wfk[keyCode] = 1;
+            TypingDNAzh.skt[keyCode] = seekTotal;
+            TypingDNAzh.sti[keyCode] = startTime;
           }
         }
-        if (TypingDNA.diagramRecording === true) {
-          TypingDNA.dwfk[keyCode] = 1;
-          TypingDNA.dskt[keyCode] = seekTotal;
-          TypingDNA.dsti[keyCode] = startTime;
-          TypingDNA.dlastDownKey = keyCode;
+        if (TypingDNAzh.diagramRecording === true) {
+          TypingDNAzh.dwfk[keyCode] = 1;
+          TypingDNAzh.dskt[keyCode] = seekTotal;
+          TypingDNAzh.dsti[keyCode] = startTime;
+          TypingDNAzh.dlastDownKey = keyCode;
         }
       }
   
-      TypingDNA.keyPress = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.keyPress = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        if (TypingDNA.diagramRecording === true) {
-          var keyCode = TypingDNA.dlastDownKey;
-          TypingDNA.drkc[keyCode] = e.charCode;
+        if (TypingDNAzh.diagramRecording === true) {
+          var keyCode = TypingDNAzh.dlastDownKey;
+          TypingDNAzh.drkc[keyCode] = e.charCode;
         }
       }
   
-      TypingDNA.keyUp = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.keyUp = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
         var ut = (new Date).getTime();
-        var keyCode = e.keyCode;
+        var keyCode = TypingDNAzh.codeToKeyCode(e.code);
         var pressTime = 0;
         var seekTime = 0;
-        if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
+        if (TypingDNAzh.recording === true || (TypingDNAzh.spKeyCodesObj[keyCode] && TypingDNAzh.spKeyRecording === true)) {
           if (!e.shiftKey) {
-            if (TypingDNA.wfk[keyCode] === 1) {
-              pressTime = ut - TypingDNA.sti[keyCode];
-              seekTime = TypingDNA.skt[keyCode];
-              var arr = [keyCode, seekTime, pressTime, TypingDNA.prevKeyCode, ut, e.target.id,];
-              TypingDNA.history.add(arr);
-              TypingDNA.prevKeyCode = keyCode;
+            if (TypingDNAzh.wfk[keyCode] === 1) {
+              pressTime = ut - TypingDNAzh.sti[keyCode];
+              seekTime = TypingDNAzh.skt[keyCode];
+              var arr = [keyCode, seekTime, pressTime, TypingDNAzh.prevKeyCode, ut, e.target.id,];
+              TypingDNAzh.history.add(arr);
+              TypingDNAzh.prevKeyCode = keyCode;
             }
           }
-          TypingDNA.wfk[keyCode] = 0;
+          TypingDNAzh.wfk[keyCode] = 0;
         }
-        if (TypingDNA.diagramRecording === true) {
-          if (TypingDNA.drkc[keyCode] !== undefined && TypingDNA.drkc[keyCode] !== 0) {
-            if (TypingDNA.dwfk[keyCode] === 1) {
-              pressTime = ut - TypingDNA.dsti[keyCode];
-              seekTime = TypingDNA.dskt[keyCode];
-              var realKeyCode = TypingDNA.drkc[keyCode];
+        if (TypingDNAzh.diagramRecording === true) {
+          if (TypingDNAzh.drkc[keyCode] !== undefined && TypingDNAzh.drkc[keyCode] !== 0) {
+            if (TypingDNAzh.dwfk[keyCode] === 1) {
+              pressTime = ut - TypingDNAzh.dsti[keyCode];
+              seekTime = TypingDNAzh.dskt[keyCode];
+              var realKeyCode = TypingDNAzh.drkc[keyCode];
               var arrD = [keyCode, seekTime, pressTime, realKeyCode, ut, e.target.id,];
-              TypingDNA.history.addDiagram(arrD);
+              TypingDNAzh.history.addDiagram(arrD);
             }
           }
-          TypingDNA.dwfk[keyCode] = 0;
+          TypingDNAzh.dwfk[keyCode] = 0;
         }
       }
   
-      TypingDNA.MobileKeyDown = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.MobileKeyDown = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        var keyCode = e.keyCode;
-        if (TypingDNA.wfk[keyCode] === 1 || TypingDNA.dwfk[keyCode] === 1) {
+        var keyCode = TypingDNAzh.codeToKeyCode(e.code);
+        if (TypingDNAzh.wfk[keyCode] === 1 || TypingDNAzh.dwfk[keyCode] === 1) {
           //return;
         }
-        TypingDNA.lastPressTime = (new Date).getTime();
-        if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
-          TypingDNA.wfk[keyCode] = 1;
+        TypingDNAzh.lastPressTime = (new Date).getTime();
+        if (TypingDNAzh.recording === true || (TypingDNAzh.spKeyCodesObj[keyCode] && TypingDNAzh.spKeyRecording === true)) {
+          TypingDNAzh.wfk[keyCode] = 1;
         }
-        if (TypingDNA.diagramRecording === true) {
-          TypingDNA.dwfk[keyCode] = 1;
-          TypingDNA.dlastDownKey = keyCode;
-        }
-      }
-  
-      TypingDNA.MobileKeyPress = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
-          return;
-        }
-        if (!TypingDNA.isTarget(e.target.id)) {
-          return;
-        }
-        if (TypingDNA.diagramRecording === true) {
-          var keyCode = TypingDNA.dlastDownKey;
-          TypingDNA.drkc[keyCode] = e.charCode;
+        if (TypingDNAzh.diagramRecording === true) {
+          TypingDNAzh.dwfk[keyCode] = 1;
+          TypingDNAzh.dlastDownKey = keyCode;
         }
       }
   
-      TypingDNA.MobileKeyUp = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.MobileKeyPress = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        var t0 = TypingDNA.ut1;
-        TypingDNA.ut1 = (new Date).getTime();
-        var seekTime = TypingDNA.ut1 - t0;
-        var kpGet = TypingDNA.kpGetAll();
-        var pressTime = (kpGet[0] !== 0) ? Math.round(TypingDNA.ut1 - kpGet[0]) : 0;
+        if (TypingDNAzh.diagramRecording === true) {
+          var keyCode = TypingDNAzh.dlastDownKey;
+          TypingDNAzh.drkc[keyCode] = e.charCode;
+        }
+      }
+  
+      TypingDNAzh.MobileKeyUp = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
+          return;
+        }
+        if (!TypingDNAzh.isTarget(e.target.id)) {
+          return;
+        }
+        var t0 = TypingDNAzh.ut1;
+        TypingDNAzh.ut1 = (new Date).getTime();
+        var seekTime = TypingDNAzh.ut1 - t0;
+        var kpGet = TypingDNAzh.kpGetAll();
+        var pressTime = (kpGet[0] !== 0) ? Math.round(TypingDNAzh.ut1 - kpGet[0]) : 0;
         if (isNaN(pressTime)) {
           pressTime = 0;
         }
-        var keyCode = e.keyCode;
-        if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
-          if (TypingDNA.wfk[keyCode] === 1) {
-            var arr = [keyCode, seekTime, pressTime, TypingDNA.prevKeyCode, TypingDNA.ut1, e.target.id];
-            TypingDNA.history.add(arr);
-            TypingDNA.prevKeyCode = keyCode;
+        var keyCode = TypingDNAzh.codeToKeyCode(e.code);
+        if (TypingDNAzh.recording === true || (TypingDNAzh.spKeyCodesObj[keyCode] && TypingDNAzh.spKeyRecording === true)) {
+          if (TypingDNAzh.wfk[keyCode] === 1) {
+            var arr = [keyCode, seekTime, pressTime, TypingDNAzh.prevKeyCode, TypingDNAzh.ut1, e.target.id];
+            TypingDNAzh.history.add(arr);
+            TypingDNAzh.prevKeyCode = keyCode;
           }
-          TypingDNA.wfk[keyCode] = 0;
+          TypingDNAzh.wfk[keyCode] = 0;
         }
-        if (TypingDNA.diagramRecording === true) {
-          if (TypingDNA.drkc[keyCode] !== undefined && TypingDNA.drkc[keyCode] !== 0) {
-            if (TypingDNA.dwfk[keyCode] === 1) {
-              var realKeyCode = TypingDNA.drkc[keyCode];
-              var arrD = [keyCode, seekTime, pressTime, realKeyCode, TypingDNA.ut1, e.target.id, kpGet[1].join(','), kpGet[2].join(','), kpGet[3].join(','), kpGet[4].join(',')];
-              TypingDNA.history.addDiagram(arrD);
+        if (TypingDNAzh.diagramRecording === true) {
+          if (TypingDNAzh.drkc[keyCode] !== undefined && TypingDNAzh.drkc[keyCode] !== 0) {
+            if (TypingDNAzh.dwfk[keyCode] === 1) {
+              var realKeyCode = TypingDNAzh.drkc[keyCode];
+              var arrD = [keyCode, seekTime, pressTime, realKeyCode, TypingDNAzh.ut1, e.target.id, kpGet[1].join(','), kpGet[2].join(','), kpGet[3].join(','), kpGet[4].join(',')];
+              TypingDNAzh.history.addDiagram(arrD);
             }
           }
-          TypingDNA.dwfk[keyCode] = 0;
+          TypingDNAzh.dwfk[keyCode] = 0;
         }
       }
   
       // only for Android devices
-      TypingDNA.AndroidKeyDown = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.AndroidKeyDown = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        if (!TypingDNA.isTarget(e.target.id)) {
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        TypingDNA.lastPressTime = (new Date).getTime();
-        if (TypingDNA.ACInputLengths.inputs.indexOf(e.target) === -1) {
-          TypingDNA.ACInputLengths.inputs.push(e.target);
-          TypingDNA.ACInputLengths.lastLength.push(0);
+        TypingDNAzh.lastPressTime = (new Date).getTime();
+        if (TypingDNAzh.ACInputLengths.inputs.indexOf(e.target) === -1) {
+          TypingDNAzh.ACInputLengths.inputs.push(e.target);
+          TypingDNAzh.ACInputLengths.lastLength.push(0);
         }
       }
   
-      TypingDNA.AndroidKeyUp = function(e) {
-        if (!TypingDNA.recording && !TypingDNA.diagramRecording) {
+      TypingDNAzh.AndroidKeyUp = function(e) {
+        if (!TypingDNAzh.recording && !TypingDNAzh.diagramRecording) {
           return;
         }
-        var t0 = TypingDNA.ut1;
-        TypingDNA.ut1 = (new Date).getTime();
-        if (!TypingDNA.isTarget(e.target.id)) {
+        var t0 = TypingDNAzh.ut1;
+        TypingDNAzh.ut1 = (new Date).getTime();
+        if (!TypingDNAzh.isTarget(e.target.id)) {
           return;
         }
-        var seekTime = TypingDNA.ut1 - t0;
-        var kpGet = TypingDNA.kpGetAll();
-        var pressTime = (kpGet[0] !== 0) ? Math.round(TypingDNA.ut1 - kpGet[0]) : 0;
+        var seekTime = TypingDNAzh.ut1 - t0;
+        var kpGet = TypingDNAzh.kpGetAll();
+        var pressTime = (kpGet[0] !== 0) ? Math.round(TypingDNAzh.ut1 - kpGet[0]) : 0;
         if (isNaN(pressTime)) {
           pressTime = 0;
         }
-        var keyCode = e.keyCode;
-        var targetIndex = TypingDNA.ACInputLengths.inputs.indexOf(e.target);
+        var keyCode = TypingDNAzh.codeToKeyCode(e.code);
+        var targetIndex = TypingDNAzh.ACInputLengths.inputs.indexOf(e.target);
         if (targetIndex === -1) {
-          TypingDNA.ACInputLengths.inputs.push(e.target);
-          TypingDNA.ACInputLengths.lastLength.push(0);
-          targetIndex = TypingDNA.ACInputLengths.inputs.indexOf(e.target);
+          TypingDNAzh.ACInputLengths.inputs.push(e.target);
+          TypingDNAzh.ACInputLengths.lastLength.push(0);
+          targetIndex = TypingDNAzh.ACInputLengths.inputs.indexOf(e.target);
         }
         var charCode = 0;
-        if (e.target.value.length >= TypingDNA.ACInputLengths.lastLength[targetIndex]) {
+        if (e.target.value.length >= TypingDNAzh.ACInputLengths.lastLength[targetIndex]) {
           var char = e.target.value.substr((e.target.selectionStart - 1) || 0, 1);
           keyCode = char.toUpperCase().charCodeAt(0);
           charCode = char.charCodeAt(0);
         }
-        TypingDNA.ACInputLengths.lastLength[targetIndex] = e.target.value.length;
-        var arr = [keyCode, seekTime, pressTime, TypingDNA.prevKeyCode, TypingDNA.ut1, e.target.id,];
-        TypingDNA.history.add(arr);
-        TypingDNA.prevKeyCode = keyCode;
-        if (TypingDNA.diagramRecording === true) {
-          var arrD = [keyCode, seekTime, pressTime, charCode, TypingDNA.ut1, e.target.id, kpGet[1].join(','), kpGet[2].join(','), kpGet[3].join(','), kpGet[4].join(',')];
-          TypingDNA.history.addDiagram(arrD);
+        TypingDNAzh.ACInputLengths.lastLength[targetIndex] = e.target.value.length;
+        var arr = [keyCode, seekTime, pressTime, TypingDNAzh.prevKeyCode, TypingDNAzh.ut1, e.target.id,];
+        TypingDNAzh.history.add(arr);
+        TypingDNAzh.prevKeyCode = keyCode;
+        if (TypingDNAzh.diagramRecording === true) {
+          var arrD = [keyCode, seekTime, pressTime, charCode, TypingDNAzh.ut1, e.target.id, kpGet[1].join(','), kpGet[2].join(','), kpGet[3].join(','), kpGet[4].join(',')];
+          TypingDNAzh.history.addDiagram(arrD);
         }
       }
   
-      TypingDNA.mouseScroll = function(e) {
-        if (TypingDNA.mouseRecording === true) {
-          if (TypingDNA.mouseMoveRecording === true) {
-            if (TypingDNA.mouse.scrollStarted === true) {
+      TypingDNAzh.mouseScroll = function(e) {
+        if (TypingDNAzh.mouseRecording === true) {
+          if (TypingDNAzh.mouseMoveRecording === true) {
+            if (TypingDNAzh.mouse.scrollStarted === true) {
               var currentTime = (new Date).getTime();
-              TypingDNA.mouse.scrollTimes.push(currentTime);
-              TypingDNA.mouse.scrollTopArr.push(TypingDNA.document.body.scrollTop);
-              clearInterval(TypingDNA.scrollInterval);
-              TypingDNA.scrollInterval = setInterval(TypingDNA.mouse.checkScroll, TypingDNA.maxScrollDeltaTime);
+              TypingDNAzh.mouse.scrollTimes.push(currentTime);
+              TypingDNAzh.mouse.scrollTopArr.push(TypingDNAzh.document.body.scrollTop);
+              clearInterval(TypingDNAzh.scrollInterval);
+              TypingDNAzh.scrollInterval = setInterval(TypingDNAzh.mouse.checkScroll, TypingDNAzh.maxScrollDeltaTime);
             } else {
-              TypingDNA.mouse.scrollStarted = true;
+              TypingDNAzh.mouse.scrollStarted = true;
             }
           }
         }
       }
   
-      TypingDNA.mouseMove = function(e) {
-        if (TypingDNA.mouseRecording === true) {
+      TypingDNAzh.mouseMove = function(e) {
+        if (TypingDNAzh.mouseRecording === true) {
           var currentTime = (new Date).getTime();
-          if (TypingDNA.mouseMoveRecording === true) {
-            if (TypingDNA.mouse.started === true) {
-              TypingDNA.mouse.times.push(currentTime);
-              TypingDNA.mouse.xPositions.push(e.screenX);
-              TypingDNA.mouse.yPositions.push(e.screenY);
-              clearInterval(TypingDNA.moveInterval);
-              TypingDNA.moveInterval = setInterval(TypingDNA.mouse.checkMove, TypingDNA.maxMoveDeltaTime);
+          if (TypingDNAzh.mouseMoveRecording === true) {
+            if (TypingDNAzh.mouse.started === true) {
+              TypingDNAzh.mouse.times.push(currentTime);
+              TypingDNAzh.mouse.xPositions.push(e.screenX);
+              TypingDNAzh.mouse.yPositions.push(e.screenY);
+              clearInterval(TypingDNAzh.moveInterval);
+              TypingDNAzh.moveInterval = setInterval(TypingDNAzh.mouse.checkMove, TypingDNAzh.maxMoveDeltaTime);
             } else {
-              TypingDNA.mouse.started = true;
+              TypingDNAzh.mouse.started = true;
             }
           }
-          TypingDNA.lastMouseMoveTime = currentTime;
+          TypingDNAzh.lastMouseMoveTime = currentTime;
         }
       }
   
-      TypingDNA.mouseDown = function(e) {
-        if (TypingDNA.mouseRecording === true) {
-          TypingDNA.mouse.checkMove();
-          TypingDNA.mouse.checkScroll();
+      TypingDNAzh.mouseDown = function(e) {
+        if (TypingDNAzh.mouseRecording === true) {
+          TypingDNAzh.mouse.checkMove();
+          TypingDNAzh.mouse.checkScroll();
           if (e.which === 1) {
-            TypingDNA.lastMouseDownTime = (new Date).getTime();
-            var stopTime = TypingDNA.lastMouseDownTime - TypingDNA.lastMouseMoveTime;
-            if (stopTime < TypingDNA.maxStopTime && TypingDNA.lastMouseStop === false) {
-              TypingDNA.stopTimes.push(stopTime);
-              if (TypingDNA.mouseMoveRecording === true) {
+            TypingDNAzh.lastMouseDownTime = (new Date).getTime();
+            var stopTime = TypingDNAzh.lastMouseDownTime - TypingDNAzh.lastMouseMoveTime;
+            if (stopTime < TypingDNAzh.maxStopTime && TypingDNAzh.lastMouseStop === false) {
+              TypingDNAzh.stopTimes.push(stopTime);
+              if (TypingDNAzh.mouseMoveRecording === true) {
                 var eventType = 3;
                 var arr = [eventType, stopTime,];
-                TypingDNA.mouse.history.add(arr);
-                TypingDNA.lastMouseStop = true;
+                TypingDNAzh.mouse.history.add(arr);
+                TypingDNAzh.lastMouseStop = true;
               }
             }
           }
         }
       }
   
-      TypingDNA.mouseUp = function(e) {
-        if (TypingDNA.mouseRecording === true) {
+      TypingDNAzh.mouseUp = function(e) {
+        if (TypingDNAzh.mouseRecording === true) {
           if (e.which === 1) {
-            var clickTime = (new Date).getTime() - TypingDNA.lastMouseDownTime;
-            if (clickTime < TypingDNA.maxClickTime) {
-              TypingDNA.clickTimes.push(clickTime);
+            var clickTime = (new Date).getTime() - TypingDNAzh.lastMouseDownTime;
+            if (clickTime < TypingDNAzh.maxClickTime) {
+              TypingDNAzh.clickTimes.push(clickTime);
             }
-            if (TypingDNA.mouseMoveRecording === true) {
-              if (TypingDNA.mouse.started === true) {
-                TypingDNA.mouse.checkMove(true);
+            if (TypingDNAzh.mouseMoveRecording === true) {
+              if (TypingDNAzh.mouse.started === true) {
+                TypingDNAzh.mouse.checkMove(true);
               } else {
                 var eventType = 4;
                 var arr = [eventType, clickTime,];
-                TypingDNA.mouse.history.add(arr);
+                TypingDNAzh.mouse.history.add(arr);
               }
             }
           }
         }
       }
   
-      TypingDNA.isMobile = function() {
-        if (TypingDNA.mobile !== undefined) {
-          return TypingDNA.mobile;
+      TypingDNAzh.isMobile = function() {
+        if (TypingDNAzh.mobile !== undefined) {
+          return TypingDNAzh.mobile;
         } else {
           var check = 0;
           (function(a) {
@@ -465,58 +544,58 @@ function TypingDNA() {
               check = 1;
             }
           })(navigator.userAgent || navigator.vendor || window.opera);
-          TypingDNA.mobile = check;
+          TypingDNAzh.mobile = check;
           return check;
         }
       }
   
-      TypingDNA.isAndroid = function() {
+      TypingDNAzh.isAndroid = function() {
         return /Android/i.test(navigator.userAgent);
       }
   
-      TypingDNA.isFirefox = function() {
+      TypingDNAzh.isFirefox = function() {
         return /Firefox/i.test(navigator.userAgent);
       }
   
-      TypingDNA.isTarget = function(target) {
-        if (TypingDNA.lastTarget === target && TypingDNA.lastTargetFound) {
+      TypingDNAzh.isTarget = function(target) {
+        if (TypingDNAzh.lastTarget === target && TypingDNAzh.lastTargetFound) {
           return true;
         } else {
-          var targetLength = TypingDNA.targetIds.length;
+          var targetLength = TypingDNAzh.targetIds.length;
           var targetFound = false;
           if (targetLength > 0) {
             for (var i = 0; i < targetLength; i++) {
-              if (TypingDNA.targetIds[i] === target) {
+              if (TypingDNAzh.targetIds[i] === target) {
                 targetFound = true;
                 break;
               }
             }
-            TypingDNA.lastTarget = target;
-            TypingDNA.lastTargetFound = targetFound;
+            TypingDNAzh.lastTarget = target;
+            TypingDNAzh.lastTargetFound = targetFound;
             return targetFound;
           } else {
-            TypingDNA.lastTarget = target;
-            TypingDNA.lastTargetFound = true;
+            TypingDNAzh.lastTarget = target;
+            TypingDNAzh.lastTargetFound = true;
             return true;
           }
         }
       }
   
-      TypingDNA.kpAccZ = [];
-      TypingDNA.kpX = [];
-      TypingDNA.kpY = [];
-      TypingDNA.kpTimes = [];
-      TypingDNA.kpLastZ = 0;
-      TypingDNA.kpLastAccX = 0;
-      TypingDNA.kpLastAccY = 0;
-      TypingDNA.kpLastPitch = 0;
-      TypingDNA.kpLastRoll = 0;
-      TypingDNA.lastPressTime = 0;
-      TypingDNA.hasDeviceMotion = false;
-      TypingDNA.hasDeviceOrientation = false;
+      TypingDNAzh.kpAccZ = [];
+      TypingDNAzh.kpX = [];
+      TypingDNAzh.kpY = [];
+      TypingDNAzh.kpTimes = [];
+      TypingDNAzh.kpLastZ = 0;
+      TypingDNAzh.kpLastAccX = 0;
+      TypingDNAzh.kpLastAccY = 0;
+      TypingDNAzh.kpLastPitch = 0;
+      TypingDNAzh.kpLastRoll = 0;
+      TypingDNAzh.lastPressTime = 0;
+      TypingDNAzh.hasDeviceMotion = false;
+      TypingDNAzh.hasDeviceOrientation = false;
   
-      TypingDNA.deviceMotionHandler = function(e) {
-        TypingDNA.kpTimes.push((new Date).getTime());
+      TypingDNAzh.deviceMotionHandler = function(e) {
+        TypingDNAzh.kpTimes.push((new Date).getTime());
         var kpCurAccX = Math.round(100 * e.accelerationIncludingGravity.x);
         var kpCurAccY = Math.round(100 * e.accelerationIncludingGravity.y);
         var kpCurAccZ = Math.round(100 * e.accelerationIncludingGravity.z);
@@ -525,67 +604,67 @@ function TypingDNA() {
           var kpCurY = Math.round(10 * e.rotationRate.beta);
           var kpCurZ = Math.round(10 * e.rotationRate.gamma);
         }
-        TypingDNA.kpLastAccX = kpCurAccX;
-        TypingDNA.kpLastAccY = kpCurAccY;
-        TypingDNA.kpAccZ.push(kpCurAccZ);
-        TypingDNA.kpX.push(kpCurX);
-        TypingDNA.kpY.push(kpCurY);
-        TypingDNA.kpLastZ = kpCurZ;
+        TypingDNAzh.kpLastAccX = kpCurAccX;
+        TypingDNAzh.kpLastAccY = kpCurAccY;
+        TypingDNAzh.kpAccZ.push(kpCurAccZ);
+        TypingDNAzh.kpX.push(kpCurX);
+        TypingDNAzh.kpY.push(kpCurY);
+        TypingDNAzh.kpLastZ = kpCurZ;
   
-        TypingDNA.kpLastPitch = Math.floor((Math.atan2(-kpCurAccY, Math.sqrt(Math.pow(kpCurAccX, 2) + Math.pow(kpCurAccZ, 2))) * 180 / Math.PI) * 10);
-        TypingDNA.kpLastRoll = Math.floor((Math.atan2(-kpCurAccX, Math.sqrt(Math.pow(kpCurAccY, 2) + Math.pow(kpCurAccZ, 2))) * 180 / Math.PI) * 10);
-        if (TypingDNA.kpX.length > 21) {
-          TypingDNA.kpTimes.shift();
-          TypingDNA.kpAccZ.shift();
-          TypingDNA.kpX.shift();
-          TypingDNA.kpY.shift();
+        TypingDNAzh.kpLastPitch = Math.floor((Math.atan2(-kpCurAccY, Math.sqrt(Math.pow(kpCurAccX, 2) + Math.pow(kpCurAccZ, 2))) * 180 / Math.PI) * 10);
+        TypingDNAzh.kpLastRoll = Math.floor((Math.atan2(-kpCurAccX, Math.sqrt(Math.pow(kpCurAccY, 2) + Math.pow(kpCurAccZ, 2))) * 180 / Math.PI) * 10);
+        if (TypingDNAzh.kpX.length > 21) {
+          TypingDNAzh.kpTimes.shift();
+          TypingDNAzh.kpAccZ.shift();
+          TypingDNAzh.kpX.shift();
+          TypingDNAzh.kpY.shift();
         }
-        if (!TypingDNA.hasDeviceMotion) {
-          TypingDNA.hasDeviceMotion = true;
-          TypingDNA.hasDeviceOrientation = true;
+        if (!TypingDNAzh.hasDeviceMotion) {
+          TypingDNAzh.hasDeviceMotion = true;
+          TypingDNAzh.hasDeviceOrientation = true;
         }
       }
   
-      if (TypingDNA.isMobile() === 1) {
-        if (TypingDNA.isAndroid()) {
-          if (TypingDNA.isFirefox()) {
-            TypingDNA.document.addEventListener("input", TypingDNA.AndroidKeyUp);
-            TypingDNA.document.addEventListener("keydown", TypingDNA.AndroidKeyDown);
+      if (TypingDNAzh.isMobile() === 1) {
+        if (TypingDNAzh.isAndroid()) {
+          if (TypingDNAzh.isFirefox()) {
+            TypingDNAzh.document.addEventListener("input", TypingDNAzh.AndroidKeyUp);
+            TypingDNAzh.document.addEventListener("keydown", TypingDNAzh.AndroidKeyDown);
           } else {
-            TypingDNA.document.addEventListener("keyup", TypingDNA.AndroidKeyUp);
-            TypingDNA.document.addEventListener("keydown", TypingDNA.AndroidKeyDown);
+            TypingDNAzh.document.addEventListener("keyup", TypingDNAzh.AndroidKeyUp);
+            TypingDNAzh.document.addEventListener("keydown", TypingDNAzh.AndroidKeyDown);
           }
         } else {
-          TypingDNA.document.addEventListener("keyup", TypingDNA.MobileKeyUp);
-          TypingDNA.document.addEventListener("keydown", TypingDNA.MobileKeyDown);
-          TypingDNA.document.addEventListener("keypress", TypingDNA.MobileKeyPress);
+          TypingDNAzh.document.addEventListener("keyup", TypingDNAzh.MobileKeyUp);
+          TypingDNAzh.document.addEventListener("keydown", TypingDNAzh.MobileKeyDown);
+          TypingDNAzh.document.addEventListener("keypress", TypingDNAzh.MobileKeyPress);
         }
         if (window.DeviceMotionEvent !== undefined) {
-          window.addEventListener('devicemotion', TypingDNA.deviceMotionHandler);
+          window.addEventListener('devicemotion', TypingDNAzh.deviceMotionHandler);
         }
       } else {
-        if (TypingDNA.document.addEventListener) {
-          TypingDNA.document.addEventListener("keyup", TypingDNA.keyUp);
-          TypingDNA.document.addEventListener("keydown", TypingDNA.keyDown);
-          TypingDNA.document.addEventListener("keypress", TypingDNA.keyPress);
-          TypingDNA.document.addEventListener("mousemove", TypingDNA.mouseMove);
-          TypingDNA.document.addEventListener("mousedown", TypingDNA.mouseDown);
-          TypingDNA.document.addEventListener("mouseup", TypingDNA.mouseUp);
-          TypingDNA.document.addEventListener("scroll", TypingDNA.mouseScroll);
-        } else if (TypingDNA.document.attachEvent) {
-          TypingDNA.document.attachEvent("onkeyup", TypingDNA.keyUp);
-          TypingDNA.document.attachEvent("onkeydown", TypingDNA.keyDown);
-          TypingDNA.document.attachEvent("onkeypress", TypingDNA.keyPress);
-          TypingDNA.document.attachEvent("onmousemove", TypingDNA.mouseMove);
-          TypingDNA.document.attachEvent("onmousedown", TypingDNA.mouseDown);
-          TypingDNA.document.attachEvent("onmouseup", TypingDNA.mouseUp);
-          TypingDNA.document.attachEvent("onscroll", TypingDNA.mouseScroll);
+        if (TypingDNAzh.document.addEventListener) {
+          TypingDNAzh.document.addEventListener("keyup", TypingDNAzh.keyUp);
+          TypingDNAzh.document.addEventListener("keydown", TypingDNAzh.keyDown);
+          TypingDNAzh.document.addEventListener("keypress", TypingDNAzh.keyPress);
+          TypingDNAzh.document.addEventListener("mousemove", TypingDNAzh.mouseMove);
+          TypingDNAzh.document.addEventListener("mousedown", TypingDNAzh.mouseDown);
+          TypingDNAzh.document.addEventListener("mouseup", TypingDNAzh.mouseUp);
+          TypingDNAzh.document.addEventListener("scroll", TypingDNAzh.mouseScroll);
+        } else if (TypingDNAzh.document.attachEvent) {
+          TypingDNAzh.document.attachEvent("onkeyup", TypingDNAzh.keyUp);
+          TypingDNAzh.document.attachEvent("onkeydown", TypingDNAzh.keyDown);
+          TypingDNAzh.document.attachEvent("onkeypress", TypingDNAzh.keyPress);
+          TypingDNAzh.document.attachEvent("onmousemove", TypingDNAzh.mouseMove);
+          TypingDNAzh.document.attachEvent("onmousedown", TypingDNAzh.mouseDown);
+          TypingDNAzh.document.attachEvent("onmouseup", TypingDNAzh.mouseUp);
+          TypingDNAzh.document.attachEvent("onscroll", TypingDNAzh.mouseScroll);
         } else {
           console.log("browser not supported");
         }
       }
   
-      TypingDNA.kpADifArr = function(arr) {
+      TypingDNAzh.kpADifArr = function(arr) {
         var length = arr.length - 1;
         var firstArr = [0];
         if (length < 2) {
@@ -607,7 +686,7 @@ function TypingDNA() {
         return [newArr, returnArr,];
       }
   
-      TypingDNA.kpRDifArr = function(arr) {
+      TypingDNAzh.kpRDifArr = function(arr) {
         var length = arr.length - 2;
         var firstArr = [];
         if (length < 0) {
@@ -641,24 +720,24 @@ function TypingDNA() {
         return [firstArr, returnArr,];
       }
   
-      TypingDNA.kpGetAll = function() {
+      TypingDNAzh.kpGetAll = function() {
         var returnVal = 0;
         var returnMotion = [];
-        if (TypingDNA.kpAccZ.length < 2) {
-          returnVal = (TypingDNA.hasDeviceMotion && TypingDNA.hasDeviceOrientation) ? 0 : TypingDNA.lastPressTime;
-          returnMotion = [0, 0, 0, 0, 0, 0, TypingDNA.kpLastPitch, TypingDNA.kpLastRoll,];
+        if (TypingDNAzh.kpAccZ.length < 2) {
+          returnVal = (TypingDNAzh.hasDeviceMotion && TypingDNAzh.hasDeviceOrientation) ? 0 : TypingDNAzh.lastPressTime;
+          returnMotion = [0, 0, 0, 0, 0, 0, TypingDNAzh.kpLastPitch, TypingDNAzh.kpLastRoll,];
           return [returnVal, returnMotion, [0],
             [0],
             [0]
           ];
         } else {
-          [kpza, kpzaAbs] = TypingDNA.kpADifArr(TypingDNA.kpAccZ);
-          [kpXR, kpxPos] = TypingDNA.kpRDifArr(TypingDNA.kpX);
-          [kpYR, kpyPos] = TypingDNA.kpRDifArr(TypingDNA.kpY);
-          TypingDNA.kpX.shift();
-          TypingDNA.kpY.shift();
-          TypingDNA.kpAccZ.shift();
-          TypingDNA.kpTimes.shift();
+          [kpza, kpzaAbs] = TypingDNAzh.kpADifArr(TypingDNAzh.kpAccZ);
+          [kpXR, kpxPos] = TypingDNAzh.kpRDifArr(TypingDNAzh.kpX);
+          [kpYR, kpyPos] = TypingDNAzh.kpRDifArr(TypingDNAzh.kpY);
+          TypingDNAzh.kpX.shift();
+          TypingDNAzh.kpY.shift();
+          TypingDNAzh.kpAccZ.shift();
+          TypingDNAzh.kpTimes.shift();
           var kpPos = kpxPos.concat(kpyPos);
           kpPos = kpPos.sort();
           var kpxyPos = [];
@@ -668,54 +747,54 @@ function TypingDNA() {
             }
           }
           var lastKpza = 0;
-          var lastKpTime = TypingDNA.kpTimes[TypingDNA.kpTimes.length - 1];
+          var lastKpTime = TypingDNAzh.kpTimes[TypingDNAzh.kpTimes.length - 1];
           for (i = 0; i < kpxyPos.length; i++) {
             var j = kpxyPos[i];
             var minj = (kpzaAbs.length > 8) ? 2 : ((kpzaAbs.length > 4) ? 1 : 0);
             if (j > minj && kpzaAbs[j] !== undefined && kpzaAbs[j] > lastKpza) {
               lastKpza = kpzaAbs[j];
-              lastKpTime = TypingDNA.kpTimes[j];
+              lastKpTime = TypingDNAzh.kpTimes[j];
             }
           }
           returnVal = lastKpTime;
-          returnMotion = [TypingDNA.kpLastAccX, TypingDNA.kpLastAccY, TypingDNA.kpAccZ.pop(), TypingDNA.kpX.pop(), TypingDNA.kpY.pop(), TypingDNA.kpLastZ, TypingDNA.kpLastPitch, TypingDNA.kpLastRoll];
-          TypingDNA.kpX = [];
-          TypingDNA.kpY = [];
-          TypingDNA.kpAccZ = [];
-          TypingDNA.kpTimes = [];
-          if (!TypingDNA.pressCalculated) {
-            TypingDNA.pressCalculated = true;
+          returnMotion = [TypingDNAzh.kpLastAccX, TypingDNAzh.kpLastAccY, TypingDNAzh.kpAccZ.pop(), TypingDNAzh.kpX.pop(), TypingDNAzh.kpY.pop(), TypingDNAzh.kpLastZ, TypingDNAzh.kpLastPitch, TypingDNAzh.kpLastRoll];
+          TypingDNAzh.kpX = [];
+          TypingDNAzh.kpY = [];
+          TypingDNAzh.kpAccZ = [];
+          TypingDNAzh.kpTimes = [];
+          if (!TypingDNAzh.pressCalculated) {
+            TypingDNAzh.pressCalculated = true;
           }
   
           return [returnVal, returnMotion, kpza, kpXR, kpYR,];
         }
       }
   
-      TypingDNA.mouse = {};
-      TypingDNA.mouse.times = [];
-      TypingDNA.mouse.xPositions = [];
-      TypingDNA.mouse.yPositions = [];
-      TypingDNA.mouse.scrollTimes = [];
-      TypingDNA.mouse.scrollTopArr = [];
-      TypingDNA.mouse.history = {};
-      TypingDNA.mouse.history.stack = [];
+      TypingDNAzh.mouse = {};
+      TypingDNAzh.mouse.times = [];
+      TypingDNAzh.mouse.xPositions = [];
+      TypingDNAzh.mouse.yPositions = [];
+      TypingDNAzh.mouse.scrollTimes = [];
+      TypingDNAzh.mouse.scrollTopArr = [];
+      TypingDNAzh.mouse.history = {};
+      TypingDNAzh.mouse.history.stack = [];
   
-      TypingDNA.mouse.getDistance = function(a, b) {
+      TypingDNAzh.mouse.getDistance = function(a, b) {
         return Math.sqrt((a * a) + (b * b));
       }
   
-      TypingDNA.mouse.getTotalDistance = function(xPositions, yPositions) {
+      TypingDNAzh.mouse.getTotalDistance = function(xPositions, yPositions) {
         var totalDistance = 0;
         var length = xPositions.length;
         for (i = 1; i < length - 1; i++) {
           var a = xPositions[i] - xPositions[i - 1];
           var b = yPositions[i] - yPositions[i - 1];
-          totalDistance += TypingDNA.mouse.getDistance(a, b);
+          totalDistance += TypingDNAzh.mouse.getDistance(a, b);
         }
         return totalDistance;
       }
   
-      TypingDNA.mouse.getAngle = function(xPosDelta, yPosDelta) {
+      TypingDNAzh.mouse.getAngle = function(xPosDelta, yPosDelta) {
         var angle = 0;
         var leftRight = (xPosDelta >= 0); // 1 if left, 0 if right
         var downUp = (yPosDelta < 0); // 1 if down, 0 if up
@@ -735,19 +814,19 @@ function TypingDNA() {
         return angle;
       }
   
-      TypingDNA.mouse.recordMoveAction = function(drag) {
-        var length = TypingDNA.mouse.times.length;
+      TypingDNAzh.mouse.recordMoveAction = function(drag) {
+        var length = TypingDNAzh.mouse.times.length;
         if (length < 3) {
           return;
         }
-        var deltaTime = TypingDNA.mouse.times[length - 1] - TypingDNA.mouse.times[0];
-        var xPosDelta = TypingDNA.mouse.xPositions[length - 1] - TypingDNA.mouse.xPositions[0];
-        var yPosDelta = TypingDNA.mouse.yPositions[length - 1] - TypingDNA.mouse.yPositions[0];
-        var directDistance = Math.round(TypingDNA.mouse.getDistance(xPosDelta, yPosDelta));
-        var totalDistance = Math.round(TypingDNA.mouse.getTotalDistance(TypingDNA.mouse.xPositions, TypingDNA.mouse.yPositions));
+        var deltaTime = TypingDNAzh.mouse.times[length - 1] - TypingDNAzh.mouse.times[0];
+        var xPosDelta = TypingDNAzh.mouse.xPositions[length - 1] - TypingDNAzh.mouse.xPositions[0];
+        var yPosDelta = TypingDNAzh.mouse.yPositions[length - 1] - TypingDNAzh.mouse.yPositions[0];
+        var directDistance = Math.round(TypingDNAzh.mouse.getDistance(xPosDelta, yPosDelta));
+        var totalDistance = Math.round(TypingDNAzh.mouse.getTotalDistance(TypingDNAzh.mouse.xPositions, TypingDNAzh.mouse.yPositions));
         var ratioDistance = Math.round(totalDistance * 100 / directDistance);
         var speed = Math.round(directDistance * 100 / deltaTime);
-        var angle = TypingDNA.mouse.getAngle(xPosDelta, yPosDelta);
+        var angle = TypingDNAzh.mouse.getAngle(xPosDelta, yPosDelta);
         var eventType = drag === true ? 5 : 1;
         var arr = [eventType, deltaTime, directDistance, speed, angle, ratioDistance,];
         var arrLen = arr.length;
@@ -756,17 +835,17 @@ function TypingDNA() {
             return;
           }
         }
-        TypingDNA.mouse.history.add(arr);
-        TypingDNA.lastMouseStop = false;
+        TypingDNAzh.mouse.history.add(arr);
+        TypingDNAzh.lastMouseStop = false;
       }
   
-      TypingDNA.mouse.recordScrollAction = function() {
-        var length = TypingDNA.mouse.scrollTimes.length;
+      TypingDNAzh.mouse.recordScrollAction = function() {
+        var length = TypingDNAzh.mouse.scrollTimes.length;
         if (length < 2) {
           return;
         }
-        var deltaTime = TypingDNA.mouse.scrollTimes[length - 1] - TypingDNA.mouse.scrollTimes[0];
-        var directDistance = TypingDNA.mouse.scrollTopArr[length - 1] - TypingDNA.mouse.scrollTopArr[0];
+        var deltaTime = TypingDNAzh.mouse.scrollTimes[length - 1] - TypingDNAzh.mouse.scrollTimes[0];
+        var directDistance = TypingDNAzh.mouse.scrollTopArr[length - 1] - TypingDNAzh.mouse.scrollTopArr[0];
         var speed = Math.round(directDistance * 100 / deltaTime);
         var eventType = 2;
         var arr = [eventType, deltaTime, directDistance, speed,];
@@ -776,83 +855,83 @@ function TypingDNA() {
             return;
           }
         }
-        TypingDNA.mouse.history.add(arr);
+        TypingDNAzh.mouse.history.add(arr);
       }
   
-      TypingDNA.mouse.history.add = function(arr) {
+      TypingDNAzh.mouse.history.add = function(arr) {
         this.stack.push(arr);
-        if (this.stack.length > TypingDNA.maxMouseHistoryLength) {
+        if (this.stack.length > TypingDNAzh.maxMouseHistoryLength) {
           this.stack.shift();
         }
       }
   
-      TypingDNA.mouse.history.getDiagram = function() {
+      TypingDNAzh.mouse.history.getDiagram = function() {
         var mouseDiagram = this.stack.join('|');
         var diagramType = 9; // for mouse diagram
-        return [String(TypingDNA.isMobile()) + ',' + String(TypingDNA.version) + ',' + TypingDNA.flags + ',' + diagramType + ',0,0,' + TypingDNA.getSpecialKeys() +
-          ',' + TypingDNA.getDeviceSignature(), mouseDiagram
+        return [String(TypingDNAzh.isMobile()) + ',' + String(TypingDNAzh.version) + ',' + TypingDNAzh.flags + ',' + diagramType + ',0,0,' + TypingDNAzh.getSpecialKeys() +
+          ',' + TypingDNAzh.getDeviceSignature(), mouseDiagram
         ].join('|');
       }
   
-      TypingDNA.mouse.clearLastMove = function() {
-        TypingDNA.mouse.times = [];
-        TypingDNA.mouse.xPositions = [];
-        TypingDNA.mouse.yPositions = [];
+      TypingDNAzh.mouse.clearLastMove = function() {
+        TypingDNAzh.mouse.times = [];
+        TypingDNAzh.mouse.xPositions = [];
+        TypingDNAzh.mouse.yPositions = [];
       }
   
-      TypingDNA.mouse.checkMove = function(drag) {
-        clearInterval(TypingDNA.moveInterval);
-        if (TypingDNA.mouse.started === true) {
-          TypingDNA.mouse.started = false;
-          TypingDNA.mouse.recordMoveAction(drag);
-          TypingDNA.mouse.clearLastMove();
+      TypingDNAzh.mouse.checkMove = function(drag) {
+        clearInterval(TypingDNAzh.moveInterval);
+        if (TypingDNAzh.mouse.started === true) {
+          TypingDNAzh.mouse.started = false;
+          TypingDNAzh.mouse.recordMoveAction(drag);
+          TypingDNAzh.mouse.clearLastMove();
         }
       }
   
-      TypingDNA.mouse.clearLastScroll = function() {
-        TypingDNA.mouse.scrollTimes = [];
-        TypingDNA.mouse.scrollTopArr = [];
+      TypingDNAzh.mouse.clearLastScroll = function() {
+        TypingDNAzh.mouse.scrollTimes = [];
+        TypingDNAzh.mouse.scrollTopArr = [];
       }
   
-      TypingDNA.mouse.checkScroll = function() {
-        clearInterval(TypingDNA.scrollInterval);
-        if (TypingDNA.mouse.scrollStarted === true) {
-          TypingDNA.mouse.scrollStarted = false;
-          TypingDNA.mouse.recordScrollAction();
-          TypingDNA.mouse.clearLastScroll();
+      TypingDNAzh.mouse.checkScroll = function() {
+        clearInterval(TypingDNAzh.scrollInterval);
+        if (TypingDNAzh.mouse.scrollStarted === true) {
+          TypingDNAzh.mouse.scrollStarted = false;
+          TypingDNAzh.mouse.recordScrollAction();
+          TypingDNAzh.mouse.clearLastScroll();
         }
       }
   
       /**
        * Adds a target to the targetIds array.
        */
-      TypingDNA.addTarget = function(target) {
-        var targetLength = TypingDNA.targetIds.length;
+      TypingDNAzh.addTarget = function(target) {
+        var targetLength = TypingDNAzh.targetIds.length;
         var targetFound = false;
         if (targetLength > 0) {
           for (var i = 0; i < targetLength; i++) {
-            if (TypingDNA.targetIds[i] === target) {
+            if (TypingDNAzh.targetIds[i] === target) {
               targetFound = true;
               break;
             }
           }
           if (!targetFound) {
-            TypingDNA.targetIds.push(target);
+            TypingDNAzh.targetIds.push(target);
           }
         } else {
-          TypingDNA.targetIds.push(target);
+          TypingDNAzh.targetIds.push(target);
         }
       }
   
       /**
        * Adds a target to the targetIds array.
        */
-      TypingDNA.removeTarget = function(target) {
-        var targetLength = TypingDNA.targetIds.length;
+      TypingDNAzh.removeTarget = function(target) {
+        var targetLength = TypingDNAzh.targetIds.length;
         if (targetLength > 0) {
           for (var i = 0; i < targetLength; i++) {
-            if (TypingDNA.targetIds[i] === target) {
-              TypingDNA.targetIds.splice(i, 1);
+            if (TypingDNAzh.targetIds[i] === target) {
+              TypingDNAzh.targetIds.splice(i, 1);
               break;
             }
           }
@@ -862,60 +941,60 @@ function TypingDNA() {
       /**
        * Resets the history stack
        */
-      TypingDNA.reset = function(all) {
-        TypingDNA.history.stack = [];
-        TypingDNA.history.stackDiagram = [];
-        TypingDNA.clickTimes = [];
-        TypingDNA.stopTimes = [];
-        TypingDNA.ACInputLengths = {
+      TypingDNAzh.reset = function(all) {
+        TypingDNAzh.history.stack = [];
+        TypingDNAzh.history.stackDiagram = [];
+        TypingDNAzh.clickTimes = [];
+        TypingDNAzh.stopTimes = [];
+        TypingDNAzh.ACInputLengths = {
           inputs: [],
           lastLength: [],
         };
         if (all === true) {
-          TypingDNA.mouse.history.stack = [];
+          TypingDNAzh.mouse.history.stack = [];
         }
       }
   
       /**
        * Automatically called at initilization. It starts the recording of keystrokes.
        */
-      TypingDNA.start = function() {
-        TypingDNA.diagramRecording = true;
-        return TypingDNA.recording = true;
+      TypingDNAzh.start = function() {
+        TypingDNAzh.diagramRecording = true;
+        return TypingDNAzh.recording = true;
       }
   
       /**
        * Ends the recording of further keystrokes. To restart recording afterwards you can
-       * either call TypingDNA.start() or create a new TypingDNA object again, not recommended.
+       * either call TypingDNAzh.start() or create a new TypingDNAzh object again, not recommended.
        */
-      TypingDNA.stop = function() {
-        TypingDNA.diagramRecording = false;
-        return TypingDNA.recording = false;
+      TypingDNAzh.stop = function() {
+        TypingDNAzh.diagramRecording = false;
+        return TypingDNAzh.recording = false;
       }
   
       /**
        * Starts the recording of mouse activity.
        */
-      TypingDNA.startMouse = function() {
-        return TypingDNA.mouseRecording = TypingDNA.mouseMoveRecording = true;
+      TypingDNAzh.startMouse = function() {
+        return TypingDNAzh.mouseRecording = TypingDNAzh.mouseMoveRecording = true;
       }
   
       /**
        * Stops the recording of mouse activity.
        */
-      TypingDNA.stopMouse = function() {
-        return TypingDNA.mouseRecording = TypingDNA.mouseMoveRecording = false;
+      TypingDNAzh.stopMouse = function() {
+        return TypingDNAzh.mouseRecording = TypingDNAzh.mouseMoveRecording = false;
       }
   
       /**
        * Resets mouse recording
        */
-      TypingDNA.resetMouse = function(all) {
+      TypingDNAzh.resetMouse = function(all) {
         if (all === true) {
-          TypingDNA.clickTimes = [];
-          TypingDNA.stopTimes = [];
+          TypingDNAzh.clickTimes = [];
+          TypingDNAzh.stopTimes = [];
         }
-        TypingDNA.mouse.history.stack = [];
+        TypingDNAzh.mouse.history.stack = [];
       }
   
       /**
@@ -938,72 +1017,72 @@ function TypingDNA() {
        * @example var typingPattern = tdna.getTypingPattern({type:1, text:"Hello5g21?*"});
        * @example var typingPattern = tdna.getTypingPattern({type:2, text:"example@mail.com"});
        */
-      TypingDNA.getTypingPattern = function(obj) {
+      TypingDNAzh.getTypingPattern = function(obj) {
         var str = '';
         if (typeof obj === 'object') {
           switch (obj.type) {
             case 0:
-              return TypingDNA.get(obj.length, obj.targetId);
+              return TypingDNAzh.get(obj.length, obj.targetId);
               break;
             case 1:
               str = (obj.text !== undefined) ? obj.text : obj.length;
-              return TypingDNA.history.getDiagram(obj.extended, str, obj.textId, obj.targetId, obj.caseSensitive);
+              return TypingDNAzh.history.getDiagram(obj.extended, str, obj.textId, obj.targetId, obj.caseSensitive);
               break;
             case 2:
               str = (obj.text !== undefined) ? obj.text : obj.length;
-              return TypingDNA.history.getDiagram(true, str, obj.textId, obj.targetId, obj.caseSensitive);
+              return TypingDNAzh.history.getDiagram(true, str, obj.textId, obj.targetId, obj.caseSensitive);
               break;
             default:
-              return TypingDNA.get(obj.length);
+              return TypingDNAzh.get(obj.length);
               break;
           }
         } else {
-          return TypingDNA.get();
+          return TypingDNAzh.get();
         }
       }
   
-      TypingDNA.getDiagram = function(str, textId) {
-        return TypingDNA.history.getDiagram(false, str, textId, undefined, false);
+      TypingDNAzh.getDiagram = function(str, textId) {
+        return TypingDNAzh.history.getDiagram(false, str, textId, undefined, false);
       }
   
-      TypingDNA.getExtendedDiagram = function(str, textId) {
-        return TypingDNA.history.getDiagram(true, str, textId, undefined, false);
+      TypingDNAzh.getExtendedDiagram = function(str, textId) {
+        return TypingDNAzh.history.getDiagram(true, str, textId, undefined, false);
       }
   
-      TypingDNA.getMouseDiagram = function() {
-        return TypingDNA.mouse.history.getDiagram();
+      TypingDNAzh.getMouseDiagram = function() {
+        return TypingDNAzh.mouse.history.getDiagram();
       }
-      TypingDNA.getSpecialKeys = function() {
-        return TypingDNA.history.getSpecialKeys();
+      TypingDNAzh.getSpecialKeys = function() {
+        return TypingDNAzh.history.getSpecialKeys();
       }
   
-      TypingDNA.get = function(length, targetId) {
-        var historyTotalLength = TypingDNA.history.stack.length;
+      TypingDNAzh.get = function(length, targetId) {
+        var historyTotalLength = TypingDNAzh.history.stack.length;
         if (length === undefined || length === 0) {
-          length = TypingDNA.defaultHistoryLength;
+          length = TypingDNAzh.defaultHistoryLength;
         }
         if (length > historyTotalLength) {
           length = historyTotalLength;
         }
         var obj = {};
         var targetLength;
-        [obj.arr, targetLength] = TypingDNA.history.get(length, "", targetId);
+        [obj.arr, targetLength] = TypingDNAzh.history.get(length, "", targetId);
         if (targetId !== undefined && targetId !== "") {
           length = targetLength;
         }
-        var zl = TypingDNA.zl;
+        var zl = TypingDNAzh.zl;
         var histRev = length;
-        var histSktF = TypingDNA.math.fo(TypingDNA.history.get(length, "seek", targetId));
-        var histPrtF = TypingDNA.math.fo(TypingDNA.history.get(length, "press", targetId));
-        var pressHistMean = Math.round(TypingDNA.math.avg(histPrtF));
-        var seekHistMean = Math.round(TypingDNA.math.avg(histSktF));
-        var pressHistSD = Math.round(TypingDNA.math.sd(histPrtF));
-        var seekHistSD = Math.round(TypingDNA.math.sd(histSktF));
+        var histSktF = TypingDNAzh.math.fo(TypingDNAzh.history.get(length, "seek", targetId));
+        var histPrtF = TypingDNAzh.math.fo(TypingDNAzh.history.get(length, "press", targetId));
+        var pressHistMean = Math.round(TypingDNAzh.math.avg(histPrtF));
+        var seekHistMean = Math.round(TypingDNAzh.math.avg(histSktF));
+        var pressHistSD = Math.round(TypingDNAzh.math.sd(histPrtF));
+        var seekHistSD = Math.round(TypingDNAzh.math.sd(histSktF));
         var charMeanTime = seekHistMean + pressHistMean;
-        var pressRatio = TypingDNA.math.rd((pressHistMean + zl) / (charMeanTime + zl), 4);
-        var seekToPressRatio = TypingDNA.math.rd((1 - pressRatio) / pressRatio, 4);
-        var pressSDToPressRatio = TypingDNA.math.rd((pressHistSD + zl) / (pressHistMean + zl), 4);
-        var seekSDToPressRatio = TypingDNA.math.rd((seekHistSD + zl) / (pressHistMean + zl), 4);
+        var pressRatio = TypingDNAzh.math.rd((pressHistMean + zl) / (charMeanTime + zl), 4);
+        var seekToPressRatio = TypingDNAzh.math.rd((1 - pressRatio) / pressRatio, 4);
+        var pressSDToPressRatio = TypingDNAzh.math.rd((pressHistSD + zl) / (pressHistMean + zl), 4);
+        var seekSDToPressRatio = TypingDNAzh.math.rd((seekHistSD + zl) / (pressHistMean + zl), 4);
         var cpm = Math.round(6E4 / (charMeanTime + zl));
         if (histRev === 0) {
           cpm = 0;
@@ -1021,34 +1100,34 @@ function TypingDNA() {
             case 0:
               break;
             case 1:
-              seekMean = TypingDNA.math.rd((obj.arr[i][0][0] + zl) / (seekHistMean + zl), 4);
+              seekMean = TypingDNAzh.math.rd((obj.arr[i][0][0] + zl) / (seekHistMean + zl), 4);
               break;
             default:
-              arr = TypingDNA.math.fo(obj.arr[i][0]);
-              seekMean = TypingDNA.math.rd((TypingDNA.math.avg(arr) + zl) / (seekHistMean + zl), 4);
-              seekSD = TypingDNA.math.rd((TypingDNA.math.sd(arr) + zl) / (seekHistSD + zl), 4);
+              arr = TypingDNAzh.math.fo(obj.arr[i][0]);
+              seekMean = TypingDNAzh.math.rd((TypingDNAzh.math.avg(arr) + zl) / (seekHistMean + zl), 4);
+              seekSD = TypingDNAzh.math.rd((TypingDNAzh.math.sd(arr) + zl) / (seekHistSD + zl), 4);
           }
           switch (obj.arr[i][1].length) {
             case 0:
               break;
             case 1:
-              pressMean = TypingDNA.math.rd((obj.arr[i][1][0] + zl) / (pressHistMean + zl), 4);
+              pressMean = TypingDNAzh.math.rd((obj.arr[i][1][0] + zl) / (pressHistMean + zl), 4);
               break;
             default:
-              arr = TypingDNA.math.fo(obj.arr[i][1]);
-              pressMean = TypingDNA.math.rd((TypingDNA.math.avg(arr) + zl) / (pressHistMean + zl), 4);
-              pressSD = TypingDNA.math.rd((TypingDNA.math.sd(arr) + zl) / (pressHistSD + zl), 4);
+              arr = TypingDNAzh.math.fo(obj.arr[i][1]);
+              pressMean = TypingDNAzh.math.rd((TypingDNAzh.math.avg(arr) + zl) / (pressHistMean + zl), 4);
+              pressSD = TypingDNAzh.math.rd((TypingDNAzh.math.sd(arr) + zl) / (pressHistSD + zl), 4);
           }
           switch (obj.arr[i][2].length) {
             case 0:
               break;
             case 1:
-              postMean = TypingDNA.math.rd((obj.arr[i][2][0] + zl) / (seekHistMean + zl), 4);
+              postMean = TypingDNAzh.math.rd((obj.arr[i][2][0] + zl) / (seekHistMean + zl), 4);
               break;
             default:
-              arr = TypingDNA.math.fo(obj.arr[i][2]);
-              postMean = TypingDNA.math.rd((TypingDNA.math.avg(arr) + zl) / (seekHistMean + zl), 4);
-              postSD = TypingDNA.math.rd((TypingDNA.math.sd(arr) + zl) / (seekHistSD + zl), 4);
+              arr = TypingDNAzh.math.fo(obj.arr[i][2]);
+              postMean = TypingDNAzh.math.rd((TypingDNAzh.math.avg(arr) + zl) / (seekHistMean + zl), 4);
+              postSD = TypingDNAzh.math.rd((TypingDNAzh.math.sd(arr) + zl) / (seekHistSD + zl), 4);
           }
           delete obj.arr[i][2];
           delete obj.arr[i][1];
@@ -1062,50 +1141,50 @@ function TypingDNA() {
           obj.arr[i][6] = postSD;
         }
         arr = [];
-        TypingDNA.apu(arr, histRev);
-        TypingDNA.apu(arr, cpm);
-        TypingDNA.apu(arr, charMeanTime);
-        TypingDNA.apu(arr, pressRatio);
-        TypingDNA.apu(arr, seekToPressRatio);
-        TypingDNA.apu(arr, pressSDToPressRatio);
-        TypingDNA.apu(arr, seekSDToPressRatio);
-        TypingDNA.apu(arr, pressHistMean);
-        TypingDNA.apu(arr, seekHistMean);
-        TypingDNA.apu(arr, pressHistSD);
-        TypingDNA.apu(arr, seekHistSD);
+        TypingDNAzh.apu(arr, histRev);
+        TypingDNAzh.apu(arr, cpm);
+        TypingDNAzh.apu(arr, charMeanTime);
+        TypingDNAzh.apu(arr, pressRatio);
+        TypingDNAzh.apu(arr, seekToPressRatio);
+        TypingDNAzh.apu(arr, pressSDToPressRatio);
+        TypingDNAzh.apu(arr, seekSDToPressRatio);
+        TypingDNAzh.apu(arr, pressHistMean);
+        TypingDNAzh.apu(arr, seekHistMean);
+        TypingDNAzh.apu(arr, pressHistSD);
+        TypingDNAzh.apu(arr, seekHistSD);
         for (var c = 0; c <= 6; c++) {
           for (i = 0; i < 44; i++) {
-            var keyCode = TypingDNA.keyCodes[i];
+            var keyCode = TypingDNAzh.keyCodes[i];
             var val = obj.arr[keyCode][c];
             if (val === 0 && c > 0) {
               val = 1;
             }
-            TypingDNA.apu(arr, val);
+            TypingDNAzh.apu(arr, val);
           }
         }
-        TypingDNA.apu(arr, TypingDNA.isMobile());
-        TypingDNA.apu(arr, TypingDNA.version);
-        TypingDNA.apu(arr, TypingDNA.flags);
-        TypingDNA.apu(arr, -1); // diagramType
-        TypingDNA.apu(arr, histRev);
-        TypingDNA.apu(arr, 0); // textId
-        arr.push(TypingDNA.getSpecialKeys());
-        arr.push(TypingDNA.getDeviceSignature());
+        TypingDNAzh.apu(arr, TypingDNAzh.isMobile());
+        TypingDNAzh.apu(arr, TypingDNAzh.version);
+        TypingDNAzh.apu(arr, TypingDNAzh.flags);
+        TypingDNAzh.apu(arr, -1); // diagramType
+        TypingDNAzh.apu(arr, histRev);
+        TypingDNAzh.apu(arr, 0); // textId
+        arr.push(TypingDNAzh.getSpecialKeys());
+        arr.push(TypingDNAzh.getDeviceSignature());
         return arr.join(",");
       }
   
-      TypingDNA.apu = function(arr, val) {
+      TypingDNAzh.apu = function(arr, val) {
         "NaN" === String(val) && (val = 0);
         arr.push(val);
       }
   
-      TypingDNA.math = {};
+      TypingDNAzh.math = {};
   
-      TypingDNA.math.rd = function(val, dec) {
+      TypingDNAzh.math.rd = function(val, dec) {
         return Number(val.toFixed(dec));
       }
   
-      TypingDNA.math.avg = function(arr) {
+      TypingDNAzh.math.avg = function(arr) {
         var len = arr.length;
         if (len > 0) {
           var sum = 0;
@@ -1118,7 +1197,7 @@ function TypingDNA() {
         }
       }
   
-      TypingDNA.math.sd = function(arr) {
+      TypingDNAzh.math.sd = function(arr) {
         var len = arr.length;
         if (len < 2) {
           return 0;
@@ -1133,7 +1212,7 @@ function TypingDNA() {
         }
       }
   
-      TypingDNA.math.fo = function(arr) {
+      TypingDNAzh.math.fo = function(arr) {
         if (arr.length > 1) {
           var values = arr.concat();
           var len = arr.length;
@@ -1162,7 +1241,7 @@ function TypingDNA() {
       }
   
       // Calculate a 32 bit FNV-1a hash
-      TypingDNA.math.fnv1aHash = function(str) {
+      TypingDNAzh.math.fnv1aHash = function(str) {
         if (str === undefined || typeof str !== 'string') {
           return 0;
         }
@@ -1176,47 +1255,47 @@ function TypingDNA() {
         return hval >>> 0;
       }
   
-      TypingDNA.history = {};
-      TypingDNA.history.stack = [];
-      TypingDNA.history.stackDiagram = [];
+      TypingDNAzh.history = {};
+      TypingDNAzh.history.stack = [];
+      TypingDNAzh.history.stackDiagram = [];
   
-      TypingDNA.history.add = function(arr) {
+      TypingDNAzh.history.add = function(arr) {
         this.stack.push(arr);
-        if (this.stack.length > TypingDNA.maxHistoryLength) {
+        if (this.stack.length > TypingDNAzh.maxHistoryLength) {
           this.stack.shift();
         }
       }
   
-      TypingDNA.history.addDiagram = function(arr) {
+      TypingDNAzh.history.addDiagram = function(arr) {
         this.stackDiagram.push(arr);
       }
   
-      TypingDNA.history.getDiagram = function(extended, str, textId, targetId, caseSensitive) {
+      TypingDNAzh.history.getDiagram = function(extended, str, textId, targetId, caseSensitive) {
         caseSensitive = (caseSensitive !== undefined) ? caseSensitive : (str === undefined || str === "");
         var returnArr = [];
         var motionArr = [];
         var kpzaArr = [];
         var kpxrArr = [];
         var kpyrArr = [];
-        var mobile = Boolean(TypingDNA.isMobile());
+        var mobile = Boolean(TypingDNAzh.isMobile());
         var diagramType = (extended === true) ? 1 : 0;
         var stackDiagram = this.stackDiagram;
         var element = {};
         if (targetId !== undefined && targetId !== "" && stackDiagram.length > 0) {
-          stackDiagram = TypingDNA.sliceStackByTargetId(stackDiagram, targetId);
+          stackDiagram = TypingDNAzh.sliceStackByTargetId(stackDiagram, targetId);
           if (str === undefined || str === "") {
-            element = TypingDNA.document.getElementById(targetId);
+            element = TypingDNAzh.document.getElementById(targetId);
             if (element != null) {
               str = element.value;
             }
           }
         } else {
-          var targetLength = TypingDNA.targetIds.length;
+          var targetLength = TypingDNAzh.targetIds.length;
           if (str === undefined || str === "") {
             if (targetLength > 0) {
               str = "";
               for (var i = 0; i < targetLength; i++) {
-                element = TypingDNA.document.getElementById(TypingDNA.targetIds[i]);
+                element = TypingDNAzh.document.getElementById(TypingDNAzh.targetIds[i]);
                 if (element != null) {
                   str += element.value;
                 }
@@ -1239,17 +1318,17 @@ function TypingDNA() {
         var returnTextId = 0;
         if (textId !== undefined) {
           if (isNaN(parseInt(textId))) {
-            returnTextId = TypingDNA.math.fnv1aHash(textId);
+            returnTextId = TypingDNAzh.math.fnv1aHash(textId);
           } else {
             returnTextId = parseInt(textId);
           }
         } else {
           if (typeof str === 'string') {
-            returnTextId = TypingDNA.math.fnv1aHash(str);
+            returnTextId = TypingDNAzh.math.fnv1aHash(str);
           }
         }
-        returnArr.push([TypingDNA.isMobile(), TypingDNA.version, TypingDNA.flags, diagramType, strLength,
-          returnTextId, TypingDNA.getSpecialKeys(), TypingDNA.getDeviceSignature(),
+        returnArr.push([TypingDNAzh.isMobile(), TypingDNAzh.version, TypingDNAzh.flags, diagramType, strLength,
+          returnTextId, TypingDNAzh.getSpecialKeys(), TypingDNAzh.getDeviceSignature(),
         ]);
         var arr = [];
         var keyCode = 0;
@@ -1298,11 +1377,11 @@ function TypingDNA() {
                     returnArr.push([seekTime, pressTime,]);
                   }
                   if (mobile === true && arr[6] !== undefined && arr[6].length > 0) {
-                    if (TypingDNA.hasDeviceMotion && TypingDNA.hasDeviceOrientation) {
-                      if (TypingDNA.motionFixedData === true) {
+                    if (TypingDNAzh.hasDeviceMotion && TypingDNAzh.hasDeviceOrientation) {
+                      if (TypingDNAzh.motionFixedData === true) {
                         motionArr.push(arr[6]);
                       }
-                      if (TypingDNA.motionArrayData === true) {
+                      if (TypingDNAzh.motionArrayData === true) {
                         kpzaArr.push(arr[7]);
                         kpxrArr.push(arr[8]);
                         kpyrArr.push(arr[9]);
@@ -1318,22 +1397,22 @@ function TypingDNA() {
                   finishPos = lastPos;
                 } else {
                   found = true;
-                  if (TypingDNA.replaceMissingKeys) {
+                  if (TypingDNAzh.replaceMissingKeys) {
                     missingCount++;
-                    if (typeof TypingDNA.savedMissingAvgValues !== 'object' ||
-                      TypingDNA.savedMissingAvgValues.historyLength !== diagramHistoryLength) {
-                      var histSktF = TypingDNA.math.fo(TypingDNA.history.get(0, "seek"));
-                      var histPrtF = TypingDNA.math.fo(TypingDNA.history.get(0, "press"));
-                      seekTime = Math.round(TypingDNA.math.avg(histSktF));
-                      pressTime = Math.round(TypingDNA.math.avg(histPrtF));
-                      TypingDNA.savedMissingAvgValues = {
+                    if (typeof TypingDNAzh.savedMissingAvgValues !== 'object' ||
+                      TypingDNAzh.savedMissingAvgValues.historyLength !== diagramHistoryLength) {
+                      var histSktF = TypingDNAzh.math.fo(TypingDNAzh.history.get(0, "seek"));
+                      var histPrtF = TypingDNAzh.math.fo(TypingDNAzh.history.get(0, "press"));
+                      seekTime = Math.round(TypingDNAzh.math.avg(histSktF));
+                      pressTime = Math.round(TypingDNAzh.math.avg(histPrtF));
+                      TypingDNAzh.savedMissingAvgValues = {
                         seekTime: seekTime,
                         pressTime: pressTime,
                         historyLength: diagramHistoryLength,
                       };
                     } else {
-                      seekTime = TypingDNA.savedMissingAvgValues.seekTime;
-                      pressTime = TypingDNA.savedMissingAvgValues.pressTime;
+                      seekTime = TypingDNAzh.savedMissingAvgValues.seekTime;
+                      pressTime = TypingDNAzh.savedMissingAvgValues.pressTime;
                     }
                     var missing = 1;
                     if (extended) {
@@ -1342,10 +1421,10 @@ function TypingDNA() {
                       returnArr.push([seekTime, pressTime, missing,]);
                     }
                     if (mobile === true) {
-                      if (TypingDNA.motionFixedData === true) {
+                      if (TypingDNAzh.motionFixedData === true) {
                         motionArr.push("");
                       }
-                      if (TypingDNA.motionArrayData === true) {
+                      if (TypingDNAzh.motionArrayData === true) {
                         kpzaArr.push("");
                         kpxrArr.push("");
                         kpyrArr.push("");
@@ -1356,7 +1435,7 @@ function TypingDNA() {
                 }
               }
             }
-            if (TypingDNA.replaceMissingKeysPerc < missingCount * 100 / strLength) {
+            if (TypingDNAzh.replaceMissingKeysPerc < missingCount * 100 / strLength) {
               return null;
             }
           }
@@ -1380,10 +1459,10 @@ function TypingDNA() {
               returnArr.push([seekTime, pressTime]);
             }
             if (mobile === true && arr[6] !== undefined && arr[6].length > 0) {
-              if (TypingDNA.motionFixedData === true) {
+              if (TypingDNAzh.motionFixedData === true) {
                 motionArr.push(arr[6]);
               }
-              if (TypingDNA.motionArrayData === true) {
+              if (TypingDNAzh.motionArrayData === true) {
                 kpzaArr.push(arr[7]);
                 kpxrArr.push(arr[8]);
                 kpyrArr.push(arr[9]);
@@ -1393,10 +1472,10 @@ function TypingDNA() {
         }
         var returnStr = returnArr.join("|");
         if (mobile === true) {
-          if (TypingDNA.motionFixedData === true) {
+          if (TypingDNAzh.motionFixedData === true) {
             returnStr += "#" + motionArr.join("|");
           }
-          if (TypingDNA.motionArrayData === true) {
+          if (TypingDNAzh.motionArrayData === true) {
             returnStr += "#" + kpzaArr.join("|");
             returnStr += "/" + kpxrArr.join("|");
             returnStr += "/" + kpyrArr.join("|");
@@ -1405,7 +1484,7 @@ function TypingDNA() {
         return returnStr;
       }
   
-      TypingDNA.sliceStackByTargetId = function(stack, targetId) {
+      TypingDNAzh.sliceStackByTargetId = function(stack, targetId) {
         var length = stack.length;
         var newStack = [];
         for (i = 0; i < length; i++) {
@@ -1417,14 +1496,14 @@ function TypingDNA() {
         return newStack;
       }
   
-      TypingDNA.history.get = function(length, type, targetId) {
+      TypingDNAzh.history.get = function(length, type, targetId) {
         var stack = this.stack;
         if (targetId !== undefined && targetId !== "" && stack.length > 0) {
-          stack = TypingDNA.sliceStackByTargetId(stack, targetId);
+          stack = TypingDNAzh.sliceStackByTargetId(stack, targetId);
         }
         var historyTotalLength = stack.length;
         if (length === 0 || length === undefined) {
-          length = TypingDNA.defaultHistoryLength;
+          length = TypingDNAzh.defaultHistoryLength;
         }
         if (length > historyTotalLength) {
           length = historyTotalLength;
@@ -1436,7 +1515,7 @@ function TypingDNA() {
             var seekArr = [];
             for (var i = 1; i <= length; i++) {
               seekTime = stack[historyTotalLength - i][1];
-              if (seekTime <= TypingDNA.maxSeekTime) {
+              if (seekTime <= TypingDNAzh.maxSeekTime) {
                 seekArr.push(seekTime);
               }
             };
@@ -1446,7 +1525,7 @@ function TypingDNA() {
             var pressArr = [];
             for (i = 1; i <= length; i++) {
               pressTime = stack[historyTotalLength - i][2];
-              if (pressTime <= TypingDNA.maxPressTime) {
+              if (pressTime <= TypingDNAzh.maxPressTime) {
                 pressArr.push(pressTime);
               }
             };
@@ -1455,7 +1534,7 @@ function TypingDNA() {
           default:
             var historyStackObj = {};
             for (i = 0; i < keyCodesLen; i++) {
-              historyStackObj[TypingDNA.keyCodes[i]] = [
+              historyStackObj[TypingDNAzh.keyCodes[i]] = [
                 [],
                 [],
                 []
@@ -1467,14 +1546,14 @@ function TypingDNA() {
               seekTime = arr[1];
               pressTime = arr[2];
               var prevKeyCode = arr[3];
-              if (TypingDNA.keyCodesObj[keyCode]) {
-                if (seekTime <= TypingDNA.maxSeekTime) {
+              if (TypingDNAzh.keyCodesObj[keyCode]) {
+                if (seekTime <= TypingDNAzh.maxSeekTime) {
                   historyStackObj[keyCode][0].push(seekTime);
-                  if (prevKeyCode !== 0 && TypingDNA.keyCodesObj[prevKeyCode]) {
+                  if (prevKeyCode !== 0 && TypingDNAzh.keyCodesObj[prevKeyCode]) {
                     historyStackObj[prevKeyCode][2].push(seekTime);
                   }
                 }
-                if (pressTime <= TypingDNA.maxPressTime) {
+                if (pressTime <= TypingDNAzh.maxPressTime) {
                   historyStackObj[keyCode][1].push(pressTime);
                 }
               }
@@ -1483,66 +1562,66 @@ function TypingDNA() {
         }
       }
   
-      TypingDNA.history.getSpecialKeys = function() {
+      TypingDNAzh.history.getSpecialKeys = function() {
         var returnArr = [];
         var length = this.stack.length;
         var historyStackObj = {};
-        var spKeyCodesLen = TypingDNA.spKeyCodes.length;
+        var spKeyCodesLen = TypingDNAzh.spKeyCodes.length;
         var arr = {};
         for (var i = 0; i < spKeyCodesLen; i++) {
-          historyStackObj[TypingDNA.spKeyCodes[i]] = [
+          historyStackObj[TypingDNAzh.spKeyCodes[i]] = [
             [],
           ];
         }
         for (i = 1; i <= length; i++) {
           arr = this.stack[length - i];
-          if (TypingDNA.spKeyCodesObj[arr[0]]) {
+          if (TypingDNAzh.spKeyCodesObj[arr[0]]) {
             var keyCode = arr[0];
             var pressTime = arr[2];
-            if (pressTime <= TypingDNA.maxPressTime) {
+            if (pressTime <= TypingDNAzh.maxPressTime) {
               historyStackObj[keyCode][0].push(pressTime);
             }
           }
         }
         for (i = 0; i < spKeyCodesLen; i++) {
-          arr = TypingDNA.math.fo(historyStackObj[TypingDNA.spKeyCodes[i]][0]);
+          arr = TypingDNAzh.math.fo(historyStackObj[TypingDNAzh.spKeyCodes[i]][0]);
           var arrLen = arr.length;
           returnArr.push(arrLen);
           if (arrLen > 1) {
-            returnArr.push(Math.round(TypingDNA.math.avg(arr)));
-            returnArr.push(Math.round(TypingDNA.math.sd(arr)));
+            returnArr.push(Math.round(TypingDNAzh.math.avg(arr)));
+            returnArr.push(Math.round(TypingDNAzh.math.sd(arr)));
           } else if (arrLen === 1) {
             returnArr.push([arr[0], -1,]);
           } else {
             returnArr.push([-1, -1,]);
           }
         }
-        var clicksArrLen = TypingDNA.clickTimes.length;
+        var clicksArrLen = TypingDNAzh.clickTimes.length;
         returnArr.push(clicksArrLen);
         if (clicksArrLen > 1) {
-          returnArr.push(Math.round(TypingDNA.math.avg(TypingDNA.clickTimes)));
-          returnArr.push(Math.round(TypingDNA.math.sd(TypingDNA.clickTimes)));
+          returnArr.push(Math.round(TypingDNAzh.math.avg(TypingDNAzh.clickTimes)));
+          returnArr.push(Math.round(TypingDNAzh.math.sd(TypingDNAzh.clickTimes)));
         } else if (clicksArrLen === 1) {
-          returnArr.push(TypingDNA.clickTimes[0], -1);
+          returnArr.push(TypingDNAzh.clickTimes[0], -1);
         } else {
           returnArr.push([-1, -1]);
         }
-        var stopArrLen = TypingDNA.stopTimes.length;
+        var stopArrLen = TypingDNAzh.stopTimes.length;
         returnArr.push(stopArrLen);
         if (stopArrLen > 1) {
-          returnArr.push(Math.round(TypingDNA.math.avg(TypingDNA.stopTimes)));
-          returnArr.push(Math.round(TypingDNA.math.sd(TypingDNA.stopTimes)));
+          returnArr.push(Math.round(TypingDNAzh.math.avg(TypingDNAzh.stopTimes)));
+          returnArr.push(Math.round(TypingDNAzh.math.sd(TypingDNAzh.stopTimes)));
         } else if (stopArrLen === 1) {
-          returnArr.push(TypingDNA.stopTimes[0], -1);
+          returnArr.push(TypingDNAzh.stopTimes[0], -1);
         } else {
           returnArr.push([-1, -1]);
         }
         return returnArr;
       }
   
-      TypingDNA.getOSBrowserMobile = function() {
-        var ua = TypingDNA.ua;
-        var platform = TypingDNA.platform;
+      TypingDNAzh.getOSBrowserMobile = function() {
+        var ua = TypingDNAzh.ua;
+        var platform = TypingDNAzh.platform;
         var orientation = screen.height >= screen.width;
         var os = 0;
         var osversion = 0;
@@ -1629,7 +1708,7 @@ function TypingDNA() {
         } else if (!os && /Windows/.test(ua)) {
           os = 1;
         }
-        if ((mobile !== 3 || mobile === 2) && TypingDNA.isMobile() === 1) {
+        if ((mobile !== 3 || mobile === 2) && TypingDNAzh.isMobile() === 1) {
           if (/(ipad|tablet|(android(?!.*mobile))|(windows(?!.*phone)(.*touch))|kindle|playbook|silk|(puffin(?!.*(IP|AP|WP))))/i.test(ua)) {
             mobile = 3;
           } else if ((os === 6 || os === 0) && ((orientation && screen.height > 767 && screen.width > 480) ||
@@ -1648,17 +1727,17 @@ function TypingDNA() {
         return [Number(os), Number(osversion), Number(browserType), Number(version), Number(mobile), isMobile2, Number(orientation), isTouchDevice];
       }
   
-      TypingDNA.getDeviceSignature = function() {
-        var osBrowserMobile = TypingDNA.getOSBrowserMobile();
+      TypingDNAzh.getDeviceSignature = function() {
+        var osBrowserMobile = TypingDNAzh.getOSBrowserMobile();
         var deviceType = osBrowserMobile[4]; // {0:unknown, 1:pc, 2:phone, 3:tablet}
         var deviceModel = 0; // fnv1aHash of device manufacturer + "-" + model
         var deviceId = 0; // fnv1aHash of device id
         var isMobile = osBrowserMobile[5]; // {0:unknown, 1:pc, 2:mobile}
         var operatingSystem = osBrowserMobile[0]; // {0:unknown/other, 1:Windows, 2:MacOS, 3:Linux, 4:ChromeOS, 5:iOS, 6: Android}
         var programmingLanguage = 1; // {0:unknown, 1:JavaScript, 2:Java, 3:Swift, 4:C++, 5:C#, 6:AndroidJava}
-        var systemLanguage = TypingDNA.math.fnv1aHash(navigator.language); // fnv1aHash of language
+        var systemLanguage = TypingDNAzh.math.fnv1aHash(navigator.language); // fnv1aHash of language
         var isTouchDevice = osBrowserMobile[7] // {0:unknown, 1:no, 2:yes}
-        var pressType = TypingDNA.getPressType(); // {0:unknown, 1:recorded, 2:calculated, 3:mixed}
+        var pressType = TypingDNAzh.getPressType(); // {0:unknown, 1:recorded, 2:calculated, 3:mixed}
         var keyboardInput = 0; // {0:unknown, 1:keyboard, 2:touchscreen, 3:mixed}
         var keyboardType = 0; // {0:unknown, 1:internal, 2:external, 3:mixed}
         var pointerInput = 0; // {0:unknown, 1:mouse, 2:touchscreen, 3:trackpad, 4:other, 5:mixed}
@@ -1668,8 +1747,8 @@ function TypingDNA() {
         var orientation = osBrowserMobile[6] ? 1 : 2;// {0:unknown, 1:portrait, 2:landscape}
         var osVersion = osBrowserMobile[1]; // numbers only
         var browserVersion = osBrowserMobile[3]; // numbers only
-        var cookieId = TypingDNA.cookieId; // default 0
-        var signature = TypingDNA.math.fnv1aHash([deviceType, deviceModel, deviceId, isMobile, operatingSystem, programmingLanguage, systemLanguage, isTouchDevice, pressType,
+        var cookieId = TypingDNAzh.cookieId; // default 0
+        var signature = TypingDNAzh.math.fnv1aHash([deviceType, deviceModel, deviceId, isMobile, operatingSystem, programmingLanguage, systemLanguage, isTouchDevice, pressType,
           keyboardInput, keyboardType, pointerInput, browserType, displayWidth, displayHeight, orientation, osVersion, browserVersion, cookieId
         ].join('-')); // fnv1aHash of all above!
         return [deviceType, deviceModel, deviceId, isMobile, operatingSystem, programmingLanguage, systemLanguage, isTouchDevice, pressType,
@@ -1677,18 +1756,18 @@ function TypingDNA() {
         ];
       }
   
-      TypingDNA.getPressType = function() {
-        if (TypingDNA.isMobile() === 0) {
-          TypingDNA.pressRecorded === true;
+      TypingDNAzh.getPressType = function() {
+        if (TypingDNAzh.isMobile() === 0) {
+          TypingDNAzh.pressRecorded === true;
           return 1; // desktop browser (typicaly)
         }
-        if (TypingDNA.pressCalculated === true) {
-          if (TypingDNA.pressRecorded === true) {
+        if (TypingDNAzh.pressCalculated === true) {
+          if (TypingDNAzh.pressRecorded === true) {
             return 3;
           } else {
             return 2; // mobile browser (typicaly)
           }
-        } else if (TypingDNA.pressRecorded === true) {
+        } else if (TypingDNAzh.pressRecorded === true) {
           return 1; // mobile app (typicaly)
         } else {
           return 0;
@@ -1702,7 +1781,7 @@ function TypingDNA() {
        * @return {Number} A real number between 0 and 1. A close to 1 value means a stronger pattern.
        * @example var quality = tdna.getQuality(typingPattern);
        */
-      TypingDNA.getQuality = function(typingPattern) {
+      TypingDNAzh.getQuality = function(typingPattern) {
         var obj = typingPattern.split(",");
         for (var i = 0; i < obj.length; i++) {
           obj[i] = Number(obj[i]);
@@ -1711,7 +1790,7 @@ function TypingDNA() {
         var rec = 0;
         var avgAcc = 0;
         var revs = obj.slice(11, 55);
-        var avg = TypingDNA.math.avg(revs);
+        var avg = TypingDNAzh.math.avg(revs);
         var revsLen = revs.length;
         for (i = 0; i < revsLen; i++) {
           rec += Number(revs[i] > 0);
@@ -1728,7 +1807,7 @@ function TypingDNA() {
        * @return {Number} A real number between 0 and 1. A number larger than 0.7 usually means a valid pattern.
        * @example var quality = tdna.checkMobileValidity(typingPattern);
        */
-      TypingDNA.checkMobileValidity = function(typingPattern) {
+      TypingDNAzh.checkMobileValidity = function(typingPattern) {
         var obj = typingPattern.split(',');
         var totalEvents = obj[0];
         if (totalEvents === 0) {
@@ -1749,7 +1828,7 @@ function TypingDNA() {
        * @return {Number} 0 if the typing pattern is not a valid pattern. A number greater than 0, otherwise.
        * @example var length = tdna.getLength("0,3.1,0,0,1,1091545568,0,-1,-1,0,-1,-1,0,-1,-1,2,76,13,2,105,44,1,0,0,1,1,1,902248182,11,1,0,0,0,1,2048,1152,1,0,76,0,2053506419|13436,101");
        */
-      TypingDNA.getLength = function(typingPattern) {
+      TypingDNAzh.getLength = function(typingPattern) {
         if(typingPattern && typeof typingPattern === 'string') {
           var separatorIndex = typingPattern.indexOf('|');
           if(separatorIndex > 0) {
@@ -1767,12 +1846,12 @@ function TypingDNA() {
        * @return {Number} The hash of the string provided as param.
        * @example var textId = tdna.getTextId("I type to be authenticated");
        */
-      TypingDNA.getTextId = function(str) {
-        return TypingDNA.math.fnv1aHash(str);
+      TypingDNAzh.getTextId = function(str) {
+        return TypingDNAzh.math.fnv1aHash(str);
       }
     } else {
-      // TypingDNA is a static class, currently doesn't support actual multiple instances (Singleton implementation)
-      return TypingDNA.instance;
+      // TypingDNAzh is a static class, currently doesn't support actual multiple instances (Singleton implementation)
+      return TypingDNAzh.instance;
     }
   }
   

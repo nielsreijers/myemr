@@ -1,3 +1,4 @@
+<!-- Original TypingDNA version -->
 <script src="/assets/typingdna.js"></script>
 <script>
 tdna = new TypingDNA();
@@ -16,3 +17,31 @@ window.addEventListener('beforeunload', () => {
     }
 });
 </script>
+
+<!-- My version with CJK support -->
+<script src="/assets/typingdna-zh.js"></script>
+<script>
+tdnazh = new TypingDNAzh();
+tdnazh.addTarget('result');
+
+window.addEventListener('beforeunload', () => {
+    let pattern = tdnazh.getTypingPattern({type:0});
+    let quality =  tdnazh.getQuality(pattern);
+    // From https://api.typingdna.com/:
+    // A real number between 0 and 1. Values over 0.3 are acceptable, however a value over 0.7 shows good pattern strength.
+
+    if (quality > 0.3) {
+        parent.kl_logEvent("typingdna_zh_0", pattern);
+        parent.kl_logEvent("typingdna_zh_0_quality", ""+quality);
+        parent.kl_flush();
+    }
+});
+</script>
+
+<!-- Debugging -->
+<!-- <script>
+    window.addEventListener("keyup", () => {
+        console.log(`tdna pattern quality ${tdna.getQuality(tdna.getTypingPattern({type:0}))}`);
+        console.log(`tdna-zh pattern quality ${tdnazh.getQuality(tdnazh.getTypingPattern({type:0}))}`);
+    });
+</script> -->
