@@ -105,6 +105,83 @@ function TypingDNA() {
       return TypingDNA.getExtendedDiagram.apply(this, arguments);
     }
 
+    // Added for CJK support Niels Reijers 20200923
+    TypingDNA.codeToKeyCode = function(code) {
+      switch (code) {
+        case 'Backspace'    : return   8;
+        case 'Tab'          : return   9;
+        case 'Enter'        : return  13;
+        case 'ShiftLeft'    : return  16;
+        case 'ShiftRight'   : return  16;
+        case 'ControlLeft'  : return  17;
+        case 'ControlRight' : return  17;
+        case 'AltRight'     : return  18;
+        case 'Escape'       : return  27;
+        case 'Space'        : return  32;
+        case 'PageUp'       : return  33;
+        case 'PageDown'     : return  34;
+        case 'End'          : return  35;
+        case 'Home'         : return  36;
+        case 'ArrowLeft'    : return  37;
+        case 'ArrowUp'      : return  38;
+        case 'ArrowRight'   : return  39;
+        case 'ArrowDown'    : return  40;
+        case 'PrintScreen'  : return  44;
+        case 'Insert'       : return  45;
+        case 'Delete'       : return  46;
+        case 'Digit0'       : return  48;
+        case 'Digit1'       : return  49;
+        case 'Digit2'       : return  50;
+        case 'Digit3'       : return  51;
+        case 'Digit4'       : return  52;
+        case 'Digit5'       : return  53;
+        case 'Digit6'       : return  54;
+        case 'Digit7'       : return  55;
+        case 'Digit8'       : return  56;
+        case 'Digit9'       : return  57;
+        case 'KeyA'         : return  65;
+        case 'KeyB'         : return  66;
+        case 'KeyC'         : return  67;
+        case 'KeyD'         : return  68;
+        case 'KeyE'         : return  69;
+        case 'KeyF'         : return  70;
+        case 'KeyG'         : return  71;
+        case 'KeyH'         : return  72;
+        case 'KeyI'         : return  73;
+        case 'KeyJ'         : return  74;
+        case 'KeyK'         : return  75;
+        case 'KeyL'         : return  76;
+        case 'KeyM'         : return  77;
+        case 'KeyN'         : return  78;
+        case 'KeyO'         : return  79;
+        case 'KeyP'         : return  80;
+        case 'KeyQ'         : return  81;
+        case 'KeyR'         : return  82;
+        case 'KeyS'         : return  83;
+        case 'KeyT'         : return  84;
+        case 'KeyU'         : return  85;
+        case 'KeyV'         : return  86;
+        case 'KeyW'         : return  87;
+        case 'KeyX'         : return  88;
+        case 'KeyY'         : return  89;
+        case 'KeyZ'         : return  90;
+        case 'MetaLeft'     : return  91;
+        case 'Semicolon'    : return 186;
+        case 'Equal'        : return 187;
+        case 'Comma'        : return 188;
+        case 'Minus'        : return 189;
+        case 'Period'       : return 190;
+        case 'Slash'        : return 191;
+        case 'Backquote'    : return 192;
+        case 'BracketLeft'  : return 219;
+        case 'Backslash'    : return 220;
+        case 'BracketRight' : return 221;
+        case 'Quote'        : return 222;
+        case 'WakeUp'       : return 255;
+        default             : return 0;
+      }
+    }
+
     TypingDNA.initialized = true;
     TypingDNA.prototype.maxHistoryLength = TypingDNA.maxHistoryLength;
     TypingDNA.prototype.defaultHistoryLength = TypingDNA.defaultHistoryLength;
@@ -181,7 +258,7 @@ function TypingDNA() {
       if (!TypingDNA.isTarget(e.target.id)) {
         return;
       }
-      var keyCode = e.keyCode;
+      var keyCode = TypingDNA.codeToKeyCode(e.code);
       if (TypingDNA.wfk[keyCode] === 1 || TypingDNA.dwfk[keyCode] === 1) {
         //return;
       }
@@ -225,7 +302,7 @@ function TypingDNA() {
         return;
       }
       var ut = (new Date).getTime();
-      var keyCode = e.keyCode;
+      var keyCode = TypingDNA.codeToKeyCode(e.code);
       var pressTime = 0;
       var seekTime = 0;
       if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
@@ -261,7 +338,7 @@ function TypingDNA() {
       if (!TypingDNA.isTarget(e.target.id)) {
         return;
       }
-      var keyCode = e.keyCode;
+      var keyCode = TypingDNA.codeToKeyCode(e.code);
       if (TypingDNA.wfk[keyCode] === 1 || TypingDNA.dwfk[keyCode] === 1) {
         //return;
       }
@@ -303,7 +380,7 @@ function TypingDNA() {
       if (isNaN(pressTime)) {
         pressTime = 0;
       }
-      var keyCode = e.keyCode;
+      var keyCode = TypingDNA.codeToKeyCode(e.code);
       if (TypingDNA.recording === true || (TypingDNA.spKeyCodesObj[keyCode] && TypingDNA.spKeyRecording === true)) {
         if (TypingDNA.wfk[keyCode] === 1) {
           var arr = [keyCode, seekTime, pressTime, TypingDNA.prevKeyCode, TypingDNA.ut1, e.target.id];
@@ -354,7 +431,7 @@ function TypingDNA() {
       if (isNaN(pressTime)) {
         pressTime = 0;
       }
-      var keyCode = e.keyCode;
+      var keyCode = TypingDNA.codeToKeyCode(e.code);
       var targetIndex = TypingDNA.ACInputLengths.inputs.indexOf(e.target);
       if (targetIndex === -1) {
         TypingDNA.ACInputLengths.inputs.push(e.target);
