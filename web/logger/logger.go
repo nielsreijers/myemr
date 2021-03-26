@@ -93,12 +93,19 @@ func AudioLogger(c *gin.Context) {
 	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
 	if isLoggedIn {
 		starttime, _ := c.GetPostForm("starttime")
+		fragment_number, _ := c.GetPostForm("fragment_number")
+		fragment_endtime, _ := c.GetPostForm("fragment_endtime")
 		location, _ := c.GetPostForm("location")
 		base64data, _ := c.GetPostForm("base64data")
 
 		binarydata, err := base64.StdEncoding.DecodeString(base64data)
-		filename := fmt.Sprintf("data/videos/%s-%s-%s.wav", currentUser.Username, location, starttime)
+		directoryname := fmt.Sprintf("data/videos/%s-%s-%s", currentUser.Username, location, starttime)
+		filename := fmt.Sprintf("%s/%s-%s.wav", directoryname, fragment_number, fragment_endtime)
 		H.ErrorCheck(err)
+
+		if _, err := os.Stat(directoryname); os.IsNotExist(err) {
+			os.Mkdir(directoryname, 0600)
+		}
 
 		f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
 		H.ErrorCheck(err)

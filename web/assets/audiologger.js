@@ -26,7 +26,7 @@ var al_options = {
 
    // get intervals based blobs
    // value in milliseconds
-   timeSlice: 10000,
+   timeSlice: 1000,
 
    // requires timeSlice above
    // returns blob via callback function
@@ -235,7 +235,10 @@ function al_startRecording(location) {
             base64encoded = base64encoded.substr(base64encoded.indexOf('base64')+7)
  
             const formData = new FormData();
-            formData.append('starttime', `${starttime}-${seq_nr++}`);
+            formData.append('starttime', `${starttime}`);
+            seq_nr_string = "000000" + seq_nr++;
+            formData.append('fragment_number', seq_nr_string.substr(seq_nr_string.length-6));
+            formData.append('fragment_endtime', `${Date.now()}`);
             formData.append('location', location);
             formData.append('base64data', base64encoded);
 
