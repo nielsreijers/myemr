@@ -8,7 +8,8 @@
     parent.kl_uuid = "{{ .UUID }}"
 
     parent.kl_logEvent("pageload", "{{ .Request.URL.Path }}");
-    parent.vl_startNewRecording(window.location.pathname.substr(1).replace(/\//g, "_")); // remove the leading '/', replace remaining '/'s with '_'
+    // parent.vl_startNewRecording(window.location.pathname.substr(1).replace(/\//g, "_")); // remove the leading '/', replace remaining '/'s with '_'
+    parent.al_startNewRecording(window.location.pathname.substr(1).replace(/\//g, "_")); // remove the leading '/', replace remaining '/'s with '_'
 
     window.addEventListener("keydown", parent.kl_logKeyMouseEvent);
     window.addEventListener("keyup", parent.kl_logKeyMouseEvent);
