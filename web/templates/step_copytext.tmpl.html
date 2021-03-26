@@ -3,10 +3,12 @@
         {{ template "header.tmpl.html" .Header }}
         {{ template "typingdnalogger.tmpl.html" }}
 
-        Please type the following text into the text box below:<br>
-        <textarea rows="10" cols="80" disabled=true>
-            {{ .Step.Data }}
-        </textarea>
+        <h3>Please type the following text into the text box below:</h3>
+        <p>
+            <div id="original">
+                {{ .Step.Data }}
+            </div>
+        </p>
         <form action="/step/{{ .Step.Number }}">
             {{ if eq 0 (len .Step.Results) }}
                 <textarea id="result" name="result" rows="10" cols="80" onpaste="return false;"></textarea><br>
@@ -15,7 +17,6 @@
                 <textarea id="result" name="result" rows="10" cols="80" disabled=true>{{ (index .Step.Results 0).Result }}</textarea><br>
                 Step already completed. <a href="/redostep/{{ .Step.Number }}">Redo step.</a>
             {{ end }}
-
             <input type="hidden" id="uuid" name="uuid" value="{{ .Header.UUID }}">
             <input type="hidden" id="steptype" name="steptype" value="{{ .Step.Type }}">
             <input type="hidden" id="stepnumber" name="stepnumber" value="{{ .Step.Number }}">
@@ -25,4 +26,22 @@
         {{ .CompletedCount }} of {{ .TotalCount }} steps completed.<br>
         <a href="/start">Back to list</a>
     </body>
+    <script>
+        function handleKeyUp(evt) {
+            originalText = document.getElementById("original").innerText;
+            resultText = document.getElementById("result").value;
+            i = 0;
+            minlen = Math.min(originalText.length, resultText.length)
+            while (i < minlen && originalText[i] == resultText[i]) {
+                i++;
+            }
+
+            matched = originalText.substr(0, i);
+            rest = originalText.substring(i, originalText.length);
+
+            document.getElementById("original").innerHTML = `<mark>${matched}</mark>${rest}`;
+        }
+
+        window.addEventListener("keyup", handleKeyUp);
+    </script>
 </html>

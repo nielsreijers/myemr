@@ -5,7 +5,7 @@
 
         <img height=50% width="auto" src="{{ .Step.Data }}"><br>
         <form action="/step/{{ .Step.Number }}">
-            Please describe what you see:<br>
+            <h3>Please describe what you see:</h3>
             {{ if eq 0 (len .Step.Results) }}
                 <textarea id="result" name="result" rows="10" cols="80"></textarea><br>
                 <input type="submit" value="Submit" formmethod="POST">
