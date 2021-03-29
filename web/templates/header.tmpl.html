@@ -13,11 +13,11 @@
 
     window.addEventListener("keydown", parent.kl_logKeyMouseEvent);
     window.addEventListener("keyup", parent.kl_logKeyMouseEvent);
-    window.addEventListener("click", parent.kl_logKeyMouseEvent);
-    window.addEventListener("contextmenu", parent.kl_logKeyMouseEvent);
-    window.addEventListener("dblclick", parent.kl_logKeyMouseEvent);
-    window.addEventListener("wheel", parent.kl_logKeyMouseEvent);
-    window.addEventListener("mousemove", parent.kl_logKeyMouseEvent);
+    // window.addEventListener("click", parent.kl_logKeyMouseEvent);
+    // window.addEventListener("contextmenu", parent.kl_logKeyMouseEvent);
+    // window.addEventListener("dblclick", parent.kl_logKeyMouseEvent);
+    // window.addEventListener("wheel", parent.kl_logKeyMouseEvent);
+    // window.addEventListener("mousemove", parent.kl_logKeyMouseEvent);
 
     window.addEventListener('beforeunload', () => {
         parent.kl_logEvent("pageunload", "{{ .Request.URL.Path }}");
