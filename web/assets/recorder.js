@@ -42,11 +42,12 @@ var Recorder = exports.Recorder = (function () {
         _classCallCheck(this, Recorder);
 
         this.config = {
-            bufferLen: 4096,
+            bufferLen: 1024*16,
             numChannels: 2,
             mimeType: 'audio/wav'
         };
         this.recording = false;
+        this.startedRecordingAt = null;
         this.callbacks = {
             getBuffer: [],
             exportWAV: []
@@ -60,8 +61,26 @@ var Recorder = exports.Recorder = (function () {
             if (!_this.recording) return;
 
             var buffer = [];
-            for (var channel = 0; channel < _this.config.numChannels; channel++) {
-                buffer.push(e.inputBuffer.getChannelData(channel));
+            if (_this.startedRecordingAt != null) {
+                // Part of the buffer will contain sound from before the call to record().
+                // We only want the slice that starts close to the call to record, so the timing of keyboard events matches the sound.
+                let msSinceStart = Date.now() - _this.startedRecordingAt;
+                let msPerBuffer = _this.config.bufferLen * 1000 / _this.context.sampleRate;
+                let numberOfSamplesToUse = _this.config.bufferLen * msSinceStart / msPerBuffer;
+
+                for (var channel = 0; channel < _this.config.numChannels; channel++) {
+                    var data = e.inputBuffer.getChannelData(channel);
+                    console.log(`using ${numberOfSamplesToUse} of ${data.length} samples`);
+                    data = data.slice(data.length - numberOfSamplesToUse, data.length);
+                    console.log(data.length);
+                    buffer.push(data);
+                }
+
+                _this.startedRecordingAt = null;
+            } else {
+                for (var channel = 0; channel < _this.config.numChannels; channel++) {
+                    buffer.push(e.inputBuffer.getChannelData(channel));
+                }
             }
             _this.worker.postMessage({
                 command: 'record',
@@ -244,6 +263,7 @@ var Recorder = exports.Recorder = (function () {
         key: 'record',
         value: function record() {
             this.recording = true;
+            this.startedRecordingAt = Date.now();
         }
     }, {
         key: 'stop',
