@@ -5,7 +5,7 @@ var al_state = {
     location: ''
 }
 
-// public interface: al_turnoff, al_startNewRecording
+// public interface: al_turnoff, al_stopRecording, al_startNewRecording
 
 async function al_turnon() {
     console.log("al_turnon() called.");

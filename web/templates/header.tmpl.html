@@ -3,6 +3,7 @@
     if (window == window.parent) {
         window.location.href = "/";
     }
+    parent.al_stopRecording();
 
     // Set the new UUID for this page visit
     parent.kl_uuid = "{{ .UUID }}"

@@ -11,7 +11,7 @@ var myrec_recording = false;
 var myrec_samplerate = 0;
 
 let NODE_BUFFERLEN = 1024*16;
-let MYRECO_FLUSHAFTERSAMPLES = 1024*1024;
+let MYREC_FLUSHSECONDS = 5;
 
 function myrec_onaudioprocess(e) {
     var data = e.inputBuffer.getChannelData(0);
@@ -34,13 +34,10 @@ function myrec_onaudioprocess(e) {
     myrec_bufferlen += data.length;
     myrec_totaldatalen += data.length;
     kl_logEvent("recorder-mark", `${myrec_totaldatalen}`);
-
-    if (myrec_bufferlen > MYRECO_FLUSHAFTERSAMPLES) {
-        myrec_flush();
-    }
 }
 
 function myrec_flush() {
+    x= Date.now();
     console.log("myrec_flush");
     if (myrec_buffer != null) {
         let oldbuffer = myrec_buffer;
@@ -58,7 +55,17 @@ function myrec_flush() {
         let endtime = Date.now();
         myrec_callback(encodeWAV(merged), endtime);
     }
+
+    console.log(`myrec_flush took ${Date.now()-x}ms`);
 }
+
+function myrec_flushlooper() {
+    if (myrec_recording) {
+        myrec_flush();
+    }
+    setTimeout(myrec_flushlooper, MYREC_FLUSHSECONDS*1000);
+}
+myrec_flushlooper();
 
 async function myrec_turnon() {
     console.log("myrec_turnon");
