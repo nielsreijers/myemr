@@ -19,7 +19,6 @@ async function al_turnon() {
     var context = new AudioContext();
     /* use the stream */
     input = context.createMediaStreamSource(stream);
-    /* Create the Recorder object and configure to record mono sound (1 channel) Recording 2 channels will double the file size */
     al_state.rec = new Recorder(input, {
         numChannels: 1
     });

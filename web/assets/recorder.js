@@ -62,6 +62,7 @@ var Recorder = exports.Recorder = (function () {
 
             var buffer = [];
             if (_this.startedRecordingAt != null) {
+                kl_logEvent("recorder-start", `${_this.startedRecordingAt}`);
                 // Part of the buffer will contain sound from before the call to record().
                 // We only want the slice that starts close to the call to record, so the timing of keyboard events matches the sound.
                 let msSinceStart = Date.now() - _this.startedRecordingAt;
@@ -75,13 +76,16 @@ var Recorder = exports.Recorder = (function () {
                     console.log(data.length);
                     buffer.push(data);
                 }
-
+                _this.totalSamples = 0;
                 _this.startedRecordingAt = null;
             } else {
                 for (var channel = 0; channel < _this.config.numChannels; channel++) {
                     buffer.push(e.inputBuffer.getChannelData(channel));
                 }
             }
+            _this.totalSamples += buffer[0].length;
+            kl_logEvent("recorder-mark", `${_this.totalSamples}`);
+
             _this.worker.postMessage({
                 command: 'record',
                 buffer: buffer
@@ -242,7 +246,6 @@ var Recorder = exports.Recorder = (function () {
                 return view;
             }
         }, self);
-
         this.worker.postMessage({
             command: 'init',
             config: {
