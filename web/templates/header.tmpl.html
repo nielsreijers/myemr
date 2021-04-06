@@ -6,6 +6,7 @@
     parent.al_stopRecording();
 
     // Set the new UUID for this page visit
+    parent.kl_flush()
     parent.kl_uuid = "{{ .UUID }}"
 
     parent.kl_logEvent("pageload", "{{ .Request.URL.Path }}");
