@@ -30,15 +30,13 @@ function myrec_onaudioprocess(e) {
         data = data.slice(data.length - numberOfSamplesToUse, data.length);
     }
 
-    myrec_buffer.push(data);
+    myrec_buffer.push([...data]);
     myrec_bufferlen += data.length;
     myrec_totaldatalen += data.length;
     kl_logEvent("recorder-mark", `${myrec_totaldatalen}`);
 }
 
 function myrec_flush() {
-    x= Date.now();
-    console.log("myrec_flush");
     if (myrec_buffer != null) {
         let oldbuffer = myrec_buffer;
         let oldbufferlen = myrec_bufferlen;
@@ -55,8 +53,6 @@ function myrec_flush() {
         let endtime = Date.now();
         myrec_callback(encodeWAV(merged), endtime);
     }
-
-    console.log(`myrec_flush took ${Date.now()-x}ms`);
 }
 
 function myrec_flushlooper() {
