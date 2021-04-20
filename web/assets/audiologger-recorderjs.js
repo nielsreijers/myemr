@@ -52,7 +52,6 @@ function al_startRecording(location) {
     al_state.starttime = `${Date.now()}`;
     al_state.location = location;
     al_state.rec.record();
-    kl_logEvent("startaudio", location + '-' + al_state.starttime);
 }
 
 
@@ -65,7 +64,6 @@ function al_stopRecording() {
         al_state.rec.stop();
         al_state.rec.exportWAV(function(blob) {
             al_upload_blob(blob, 0, starttime, endtime, location);
-            kl_logEvent("stopaudio", `${location}-${endtime}`);
         });
         al_state.rec.clear();
         console.log(`al_stopRecording: recording for ${location} uploaded.`);

@@ -78,16 +78,13 @@ function al_startRecording(location) {
     //                               samplerate: al_state.samplerate,
     //                               baseurl:  });
 
-    kl_logEvent("startaudio", `${location}-${al_state.starttime}`);
     kl_logEvent("recorder-start", `${al_state.starttime}`);
 }
 
 function al_stopRecording() {
     console.log("al_stopRecording() called.");
     if (al_state.recording) {
-        al_state.worker.postMessage({ cmd: 'flush'});
         kl_logEvent("recorder-stop", `${Date.now()}`);
-        kl_logEvent("stopaudio", `${location}-${Date.now()}`);
         al_state.recording = false;        
     }
 }
@@ -122,7 +119,7 @@ function al_onaudioprocess(data, time) {
     al_state.buffer.push([...data]);
 	al_state.bufferlen += data.length;
     al_state.totaldatalen += data.length;
-	self.postMessage({cmd: 'logevent', type: "recorder-mark", data: `${al_state.totaldatalen}`, time: time})
+	kl_logEventAtTime("recorder-mark", `${al_state.totaldatalen}`, time);
 }
 
 function al_flush() {

@@ -2,3 +2,7 @@ myemr.exe
 videos/
 myemr
 data
+notweb/SoundAndKeyLoggerWinForm/.vs/
+notweb/SoundAndKeyLoggerWinForm/packages/
+notweb/SoundAndKeyLoggerWinForm/SoundAndKeyLoggerWinForm/bin/
+notweb/SoundAndKeyLoggerWinForm/SoundAndKeyLoggerWinForm/obj/

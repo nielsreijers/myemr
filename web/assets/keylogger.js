@@ -40,6 +40,11 @@ function kl_logEvent(type, data) {
   kl_events.push({ unixtime: unixtime, type: type, data: data, x: -1, y: -1 });
 }
 
+function kl_logEventAtTime(type, data, time) {
+  let unixtime = Date.now()
+  kl_events.push({ unixtime: time, type: type, data: data, x: -1, y: -1 });
+}
+
 function kl_flush() {
   if (kl_events.length>0) {
     eventsToSend = kl_events;
