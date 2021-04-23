@@ -1,5 +1,7 @@
 import librosa
 import numpy as np
+import sklearn.cluster
+import sklearn.mixture
 from sklearn.preprocessing import scale
 from sklearn.metrics.cluster import homogeneity_completeness_v_measure
 from sklearn.metrics import silhouette_score
@@ -73,11 +75,36 @@ def printClusteringResult(clustering, labels, method=None):
     for k, g in groupby(data, cluster):
         group = [label(x) for x in g]
         group.sort()
-        print (f'{k}: {printListGroupPercentages(group)}')
+        print (f'{k} ({len(group)}): {printListGroupPercentages(group)}')
     print (f'by key')
     data=list(zip(clustering, labels))
     data = sorted(data, key=label)
     for k, g in groupby(data, label):
         group = [cluster(x) for x in g]
         group.sort()
-        print (f'{k}: {printListGroupPercentages(group)}')
+        print (f'{k} ({len(group)}): {printListGroupPercentages(group)}')
+        
+def testClustering(data, features, keep=None):
+    def filterLabels(labels, keep):
+        return [label if label in keep else 'Other' for label in labels]
+    
+    labels = data['keystroke_labels']
+    print(len(labels))
+    features = getConcatenatedFeatures(data, features)
+    
+    if keep != None:
+        filtered_labels = filterLabels(labels, keep=keep)
+    else:
+        filtered_labels = labels
+
+    n_clusters = len(set(filtered_labels)) + 1
+
+    clustering=sklearn.cluster.k_means(features, n_clusters=n_clusters)[1]
+    print()
+    printClusteringResult(clustering, filtered_labels, 'k_means')
+
+    gm = sklearn.mixture.GaussianMixture(n_clusters)
+    gm.fit(features)
+    clustering = gm.predict(features)
+    print()
+    printClusteringResult(clustering, filtered_labels, 'GaussianMixture')

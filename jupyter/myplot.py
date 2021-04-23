@@ -76,13 +76,13 @@ def plotWaveAndKeys(data, adjust_ms=0, whichWav='wav'):
 def plotKeystroke(data, i):
     (key, wav) = data['keystrokes'][i]
     sr=data['sr']
-    _plotKeystroke(key, wav, sr)
+    _plotKeystroke(f'{i}: {key}', wav, sr)
 
-def _plotKeystroke(key, wav, sr):
-    plt.figure(figsize=(12, 4))
-    plt.ylim((-0.4,0.4))
-    librosa.display.waveplot(wav, sr=sr, alpha=0.1)
-    plt.title(key)
+def _plotKeystroke(title, wav, sr):
+    plt.figure(figsize=(6, 4))
+    plt.ylim((-1,1))
+    librosa.display.waveplot(wav, sr=sr)
+    plt.title(title)
 
 def plotKeystrokeContext(data, i=0, adjust_ms=0):
     firstKeystrokeAt = data['down_events'][i][1]

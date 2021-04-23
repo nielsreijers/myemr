@@ -27,6 +27,7 @@ def getData(directory,
     print(f'Read {len(up_events)} keyup events, {len(down_events)} keydown events, and {len(recorder_mark_events)} recorder-mark events.')
     
     data = {
+        'directory': directory,
         'original_wav': original_wav,
         'sr': sr,
         'starttime': starttime_file,
