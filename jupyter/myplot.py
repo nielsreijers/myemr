@@ -6,9 +6,14 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import math
 import datetime
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+import pandas as pd
+import numpy as np
 
 import mywav_adjust
 import myfunctions
+import mylearn
 
 datetimeTickFormatter = bokeh.models.DatetimeTickFormatter(
     microseconds = ['%d-%m    %H:%M:%S.%3N'],
@@ -105,4 +110,32 @@ def _getKeystrokes(data, sync_adjustment, sample_duration, min_peak_value):
     sr = data['sr']
     srms = sr/1000
     wav = data['wav']
+
+def plotPCA(data, featurenames):
+    features, _ = mylearn.getConcatenatedFeatures(data, featurenames)
+    scaled_features = StandardScaler().fit_transform(features)
+    pca = PCA(n_components=2)
+    principalComponents = pca.fit_transform(scaled_features)
+    principalDf = pd.DataFrame(data = principalComponents, columns = ['principal component 1', 'principal component 2'])
+    labelsDf = pd.DataFrame(data = [x[0] for x in data['keystrokes']], columns=['key'])
+    finalDf = pd.concat([principalDf, labelsDf], axis = 1)
+    
+    fig = plt.figure(figsize = (8,8))
+    ax = fig.add_subplot(1,1,1) 
+#     ax.set_xlabel('Principal Component 1', fontsize = 15)
+#     ax.set_ylabel('Principal Component 2', fontsize = 15)
+    ax.set_title('2 component PCA', fontsize = 20)
+    keys = set(labelsDf['key'])
+#     colors = ['r', 'g', 'b']
+    for key in keys: #target, color in zip(targets,colors):
+        indicesToKeep = finalDf['key'] == key
+        ax.scatter(finalDf.loc[indicesToKeep, ['principal component 1']]
+                   , finalDf.loc[indicesToKeep, ['principal component 2']]
+#                    , c = color
+                   , s = 50)
+    ax.legend(keys)
+    ax.grid()
+    
+    print (f'Explained variance in 2D plot: {sum(pca.explained_variance_ratio_)}')
+    
     

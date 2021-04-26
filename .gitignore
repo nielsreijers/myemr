@@ -6,3 +6,4 @@ notweb/SoundAndKeyLoggerWinForm/.vs/
 notweb/SoundAndKeyLoggerWinForm/packages/
 notweb/SoundAndKeyLoggerWinForm/SoundAndKeyLoggerWinForm/bin/
 notweb/SoundAndKeyLoggerWinForm/SoundAndKeyLoggerWinForm/obj/
+*.pyc
