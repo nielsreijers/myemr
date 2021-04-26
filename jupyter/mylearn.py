@@ -7,6 +7,8 @@ from sklearn.metrics.cluster import homogeneity_completeness_v_measure
 from sklearn.metrics import silhouette_score
 from itertools import groupby
 
+import myhelpers
+
 def normaliseFeatures(features):
     (nr_keystrokes, nr_mfcc_features, nr_frames) = features.shape
     print (f'Normalising {nr_keystrokes} keystrokes, with {nr_mfcc_features} features and {nr_frames} frames per sample')
@@ -37,13 +39,18 @@ def addFeatures(data):
     data['mfcc_features'] = np.array([librosa.feature.mfcc(wav, sr, n_mfcc=32, win_length=window_length, hop_length=hop_length) for wav in wavs])
     print('getFeatures: Normalise')
     data['normalised_mfcc_features'] = normaliseFeatures(data['mfcc_features'])
-    print('getFeatures: Get max')
+    print('getFeatures: Get mfcc_max')
     data['mfcc_max'] = scale(np.max(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: Get mean')
+    print('getFeatures: Get mfcc_mean')
     data['mfcc_mean'] = scale(np.mean(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: Get stddev')
+    print('getFeatures: Get mfcc_std')
     data['mfcc_std'] = scale(np.std(data['normalised_mfcc_features'], axis=2))
+    print('getFeatures: Get mfcc_argmax_time')
+    data['mfcc_argmax_time'] = scale(np.argmax(data['normalised_mfcc_features'], axis=2))
+    print('getFeatures: mfcc_argmax_channel')
+    data['mfcc_argmax_channel'] = scale(np.argmax(data['normalised_mfcc_features'], axis=1))
     print('getFeatures: Done')
+    
 
 def getConcatenatedFeatures(data, features):
     missing_features = [x for x in features if x not in data.keys()]
@@ -51,14 +58,10 @@ def getConcatenatedFeatures(data, features):
         print (f'Missing features: {", ".join(missing_features)}. Calling addFeatures to add them.')
         addFeatures(data)
     print (f'Concatenating these features: {features}')
-    c = np.concatenate([data[feature] for feature in features], axis=1)
-    print (f'Resulting shape: {c.shape}')
-    return c
-
-def printListGroupPercentages(l):
-    percentages = [(k, 100*len(list(g))/len(l)) for k, g in groupby(sorted(l), lambda x: x)]
-    percentages = sorted(percentages, key=lambda x: x[1], reverse=True)
-    return ', '.join([f"'{key}' {'%d' % percentage}%" for (key, percentage) in percentages])
+    f = np.concatenate([data[feature] for feature in features], axis=1)
+    n = np.concatenate([[f'{feature}_{i}' for i in range(data[feature].shape[1])] for feature in features])
+    print (f'Resulting shape: {f.shape}')
+    return f, n
 
 def printClusteringResult(clustering, labels, method=None):
     if method != None:
@@ -75,14 +78,14 @@ def printClusteringResult(clustering, labels, method=None):
     for k, g in groupby(data, cluster):
         group = [label(x) for x in g]
         group.sort()
-        print (f'{k} ({len(group)}): {printListGroupPercentages(group)}')
+        print (f'\t{k} ({len(group)}): {myhelpers.getListGroupPercentages(group)}')
     print (f'by key')
     data=list(zip(clustering, labels))
     data = sorted(data, key=label)
     for k, g in groupby(data, label):
         group = [cluster(x) for x in g]
         group.sort()
-        print (f'{k} ({len(group)}): {printListGroupPercentages(group)}')
+        print (f'\t{k} ({len(group)}): {myhelpers.getListGroupPercentages(group)}')
         
 def testClustering(data, features, keep=None):
     def filterLabels(labels, keep):
@@ -90,7 +93,8 @@ def testClustering(data, features, keep=None):
     
     labels = data['keystroke_labels']
     print(len(labels))
-    features = getConcatenatedFeatures(data, features)
+    features, featurenames = getConcatenatedFeatures(data, features)
+#     print (featurenames)
     
     if keep != None:
         filtered_labels = filterLabels(labels, keep=keep)
