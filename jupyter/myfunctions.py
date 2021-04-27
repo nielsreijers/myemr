@@ -59,23 +59,29 @@ def addKeystrokes(data):
     keystroke_min_peak_level = data['keystroke_min_peak_level']
     keystrokes = getKeystrokes(data, sync_adjustment, keystroke_duration, keystroke_min_peak_level)
     data['keystrokes'] = keystrokes
-    labels, wavs = map(list, zip(*keystrokes))
+    if len(keystrokes) > 0:
+        labels, wavs = map(list, zip(*keystrokes))
+    else:
+        labels, wavs = ([], [])
     data['keystroke_labels'] = labels
     data['keystroke_wavs'] = wavs
 
 def getKeystrokes(data, sync_adjustment, sample_duration, min_peak_value):
     starttime = data['starttime_recorder_start_event']
     down_event_times = [(e[1]-starttime+sync_adjustment, e[3]) for e in data['down_events']]
-    firstKeydown = down_event_times[0][0]
-    sr = data['sr']
-    srms = sr/1000
-    wav = data['wav']
+    if len(down_event_times) > 0:
+        firstKeydown = down_event_times[0][0]
+        sr = data['sr']
+        srms = sr/1000
+        wav = data['wav']
 
-    print(f'First keydown event after {firstKeydown} ms')
-    
-    samples = [(key, wav[int(time*srms):int((time+sample_duration)*srms)]) for (time, key) in down_event_times]
-    filtered_samples = [(key, wav) for (key, wav) in samples if max(wav) >= min_peak_value]
-    print (f'Using {len(filtered_samples)} out of {len(samples)} keystrokes')
+        print(f'First keydown event after {firstKeydown} ms')
+
+        samples = [(key, wav[int(time*srms):int((time+sample_duration)*srms)]) for (time, key) in down_event_times]
+        filtered_samples = [(key, wav) for (key, wav) in samples if max(wav) >= min_peak_value]
+        print (f'Using {len(filtered_samples)} out of {len(samples)} keystrokes')
+    else:
+        filtered_samples = []
     
     return filtered_samples
 

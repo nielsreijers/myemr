@@ -38,7 +38,7 @@ def plotMatplotlib(data):
     down_events=data['down_events']
     
     plt.figure(figsize=(12, 4))
-    plt.ylim((0,0.02))
+    plt.ylim((0,1))
     librosa.display.waveplot(wav, sr=sr, alpha=0.1)
     plt.scatter([(x[1]-starttime_file)/1000 for x in down_events], [0 for _ in down_events])
     plt.scatter([(x[1]-starttime_file)/1000 for x in up_events], [0.01 for _ in up_events])

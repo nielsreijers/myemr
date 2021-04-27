@@ -6,6 +6,7 @@ from sklearn.preprocessing import scale
 from sklearn.metrics.cluster import homogeneity_completeness_v_measure
 from sklearn.metrics import silhouette_score
 from itertools import groupby
+import pandas as pd
 
 import myhelpers
 
@@ -35,33 +36,26 @@ def addFeatures(data):
     hop_length = int(2.5*srms)
     window_length = int(10*srms)
     
-    print('getFeatures: mfcc')
+    print('Adding features')
     data['mfcc_features'] = np.array([librosa.feature.mfcc(wav, sr, n_mfcc=32, win_length=window_length, hop_length=hop_length) for wav in wavs])
-    print('getFeatures: Normalise')
     data['normalised_mfcc_features'] = normaliseFeatures(data['mfcc_features'])
-    print('getFeatures: Get mfcc_max')
     data['mfcc_max'] = scale(np.max(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: Get mfcc_mean')
     data['mfcc_mean'] = scale(np.mean(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: Get mfcc_std')
     data['mfcc_std'] = scale(np.std(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: Get mfcc_argmax_time')
     data['mfcc_argmax_time'] = scale(np.argmax(data['normalised_mfcc_features'], axis=2))
-    print('getFeatures: mfcc_argmax_channel')
-    data['mfcc_argmax_channel'] = scale(np.argmax(data['normalised_mfcc_features'], axis=1))
-    print('getFeatures: Done')
-    
+    data['mfcc_argmax_channel'] = scale(np.argmax(data['normalised_mfcc_features'], axis=1))    
 
 def getConcatenatedFeatures(data, features):
     missing_features = [x for x in features if x not in data.keys()]
     if len(missing_features) > 0:
-        print (f'Missing features: {", ".join(missing_features)}. Calling addFeatures to add them.')
+        print (f'getConcatenatedFeatures: Missing features: {", ".join(missing_features)}. Calling addFeatures to add them.')
         addFeatures(data)
-    print (f'Concatenating these features: {features}')
+    print (f'getConcatenatedFeatures: Concatenating these features: {features}')
     f = np.concatenate([data[feature] for feature in features], axis=1)
     n = np.concatenate([[f'{feature}_{i}' for i in range(data[feature].shape[1])] for feature in features])
-    print (f'Resulting shape: {f.shape}')
-    return f, n
+    print (f'getConcatenatedFeatures: Resulting shape: {f.shape}')
+    
+    return pd.DataFrame(data = f, columns=n)
 
 def printClusteringResult(clustering, labels, method=None):
     if method != None:
@@ -93,7 +87,7 @@ def testClustering(data, features, keep=None):
     
     labels = data['keystroke_labels']
     print(len(labels))
-    features, featurenames = getConcatenatedFeatures(data, features)
+    features = getConcatenatedFeatures(data, features)
 #     print (featurenames)
     
     if keep != None:
