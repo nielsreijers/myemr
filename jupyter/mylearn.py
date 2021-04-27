@@ -42,6 +42,7 @@ def addFeatures(data):
     print('Adding features')
     data['mfcc_features'] = np.array([librosa.feature.mfcc(wav, sr, n_mfcc=32, win_length=window_length, hop_length=hop_length) for wav in wavs])
     data['normalised_mfcc_features'] = normaliseFeatures(data['mfcc_features'])
+    data['mfcc_flattened'] = data['normalised_mfcc_features'].reshape(data['normalised_mfcc_features'].shape[0], -1)
     data['mfcc_max'] = scale(np.max(data['normalised_mfcc_features'], axis=2))
     data['mfcc_mean'] = scale(np.mean(data['normalised_mfcc_features'], axis=2))
     data['mfcc_std'] = scale(np.std(data['normalised_mfcc_features'], axis=2))
@@ -118,7 +119,8 @@ def testClustering(data, features, keep=None):
 def logRegTrain(data,
                 featurenames=['mfcc_max', 'mfcc_mean'],
                 labels_filter=None,
-                training_sample_count=None):    
+                training_sample_count=None,
+                classifier=None):    
     features = getConcatenatedFeatures(data, featurenames)
     labels = [x[0] for x in data['keystrokes']]
     if labels_filter != None:
@@ -143,19 +145,20 @@ def logRegTrain(data,
 
     # all parameters not specified are set to their defaults
     # default solver is incredibly slow which is why it was changed to 'lbfgs'
-    lr = LogisticRegression(solver = 'lbfgs')
+    if classifier == None:
+        classifier = LogisticRegression(solver = 'lbfgs')
 
-    lr.fit(train_features, train_labels)
+    classifier.fit(train_features, train_labels)
 
     if training_sample_count == None:
-        return scaler, lr
+        return scaler, classifier
     else:
         test_features = scaler.transform(test_features)
-        score = lr.score(test_features, test_labels)
-        return scaler, lr, score
+        score = classifier.score(test_features, test_labels)
+        return scaler, classifier, score
 
 def logRegTest(scaler,
-               lr,
+               classifier,
                data,
                featurenames=['mfcc_max', 'mfcc_mean'],
                labels_filter=None):
@@ -165,5 +168,5 @@ def logRegTest(scaler,
         labels = filterLabels(labels, keep=labels_filter)
 
     features = scaler.transform(features)
-    return lr.score(features, labels)
+    return classifier.score(features, labels)
     
