@@ -112,7 +112,7 @@ def _getKeystrokes(data, sync_adjustment, sample_duration, min_peak_value):
     wav = data['wav']
 
 def plotPCA(data, featurenames):
-    features, _ = mylearn.getConcatenatedFeatures(data, featurenames)
+    features = mylearn.getConcatenatedFeatures(data, featurenames)
     scaled_features = StandardScaler().fit_transform(features)
     pca = PCA(n_components=2)
     principalComponents = pca.fit_transform(scaled_features)

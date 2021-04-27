@@ -5,6 +5,9 @@ import sklearn.mixture
 from sklearn.preprocessing import scale
 from sklearn.metrics.cluster import homogeneity_completeness_v_measure
 from sklearn.metrics import silhouette_score
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
 from itertools import groupby
 import pandas as pd
 
@@ -45,15 +48,18 @@ def addFeatures(data):
     data['mfcc_argmax_time'] = scale(np.argmax(data['normalised_mfcc_features'], axis=2))
     data['mfcc_argmax_channel'] = scale(np.argmax(data['normalised_mfcc_features'], axis=1))    
 
-def getConcatenatedFeatures(data, features):
+def getConcatenatedFeatures(data, features, verbose=False):
     missing_features = [x for x in features if x not in data.keys()]
     if len(missing_features) > 0:
-        print (f'getConcatenatedFeatures: Missing features: {", ".join(missing_features)}. Calling addFeatures to add them.')
+        if verbose:
+            print (f'getConcatenatedFeatures: Missing features: {", ".join(missing_features)}. Calling addFeatures to add them.')
         addFeatures(data)
-    print (f'getConcatenatedFeatures: Concatenating these features: {features}')
+    if verbose:
+        print (f'getConcatenatedFeatures: Concatenating these features: {features}')
     f = np.concatenate([data[feature] for feature in features], axis=1)
     n = np.concatenate([[f'{feature}_{i}' for i in range(data[feature].shape[1])] for feature in features])
-    print (f'getConcatenatedFeatures: Resulting shape: {f.shape}')
+    if verbose:
+        print (f'getConcatenatedFeatures: Resulting shape: {f.shape}')
     
     return pd.DataFrame(data = f, columns=n)
 
@@ -80,11 +86,11 @@ def printClusteringResult(clustering, labels, method=None):
         group = [cluster(x) for x in g]
         group.sort()
         print (f'\t{k} ({len(group)}): {myhelpers.getListGroupPercentages(group)}')
-        
+
+def filterLabels(labels, keep):
+    return [label if label in keep else 'Other' for label in labels]
+
 def testClustering(data, features, keep=None):
-    def filterLabels(labels, keep):
-        return [label if label in keep else 'Other' for label in labels]
-    
     labels = data['keystroke_labels']
     print(len(labels))
     features = getConcatenatedFeatures(data, features)
@@ -106,3 +112,58 @@ def testClustering(data, features, keep=None):
     clustering = gm.predict(features)
     print()
     printClusteringResult(clustering, filtered_labels, 'GaussianMixture')
+
+
+
+def logRegTrain(data,
+                featurenames=['mfcc_max', 'mfcc_mean'],
+                labels_filter=None,
+                training_sample_count=None):    
+    features = getConcatenatedFeatures(data, featurenames)
+    labels = [x[0] for x in data['keystrokes']]
+    if labels_filter != None:
+        labels = filterLabels(labels, keep=labels_filter)
+    
+    if training_sample_count == None:
+        test_size = 0
+    else:
+        if (training_sample_count > len(labels)):
+            raise Exception(f"{training_sample_count} samples to be used for training, but only {len(labels)} samples provided.")
+        test_size = 1 - (training_sample_count / len(labels))
+        print (f"test_size set to {test_size} for roughly {training_sample_count} training samples")
+
+    # test_size: what proportion of original data is used for test set
+    train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=test_size, random_state=0)
+
+    scaler = StandardScaler()
+    # Fit on training set only.
+    scaler.fit(train_features)
+    # Apply transform to both the training set and the test set.
+    train_features = scaler.transform(train_features)
+
+    # all parameters not specified are set to their defaults
+    # default solver is incredibly slow which is why it was changed to 'lbfgs'
+    lr = LogisticRegression(solver = 'lbfgs')
+
+    lr.fit(train_features, train_labels)
+
+    if training_sample_count == None:
+        return scaler, lr
+    else:
+        test_features = scaler.transform(test_features)
+        score = lr.score(test_features, test_labels)
+        return scaler, lr, score
+
+def logRegTest(scaler,
+               lr,
+               data,
+               featurenames=['mfcc_max', 'mfcc_mean'],
+               labels_filter=None):
+    features = getConcatenatedFeatures(data, featurenames)
+    labels = [x[0] for x in data['keystrokes']]
+    if labels_filter != None:
+        labels = filterLabels(labels, keep=labels_filter)
+
+    features = scaler.transform(features)
+    return lr.score(features, labels)
+    
