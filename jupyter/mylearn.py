@@ -7,7 +7,6 @@ from sklearn.metrics.cluster import homogeneity_completeness_v_measure
 from sklearn.metrics import silhouette_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.linear_model import LogisticRegression
 from itertools import groupby
 import pandas as pd
 
@@ -40,14 +39,14 @@ def addFeatures(data):
     window_length = int(10*srms)
     
     print('Adding features')
-    data['mfcc_features'] = np.array([librosa.feature.mfcc(wav, sr, n_mfcc=32, win_length=window_length, hop_length=hop_length) for wav in wavs])
-    data['normalised_mfcc_features'] = normaliseFeatures(data['mfcc_features'])
-    data['mfcc_flattened'] = data['normalised_mfcc_features'].reshape(data['normalised_mfcc_features'].shape[0], -1)
-    data['mfcc_max'] = scale(np.max(data['normalised_mfcc_features'], axis=2))
-    data['mfcc_mean'] = scale(np.mean(data['normalised_mfcc_features'], axis=2))
-    data['mfcc_std'] = scale(np.std(data['normalised_mfcc_features'], axis=2))
-    data['mfcc_argmax_time'] = scale(np.argmax(data['normalised_mfcc_features'], axis=2))
-    data['mfcc_argmax_channel'] = scale(np.argmax(data['normalised_mfcc_features'], axis=1))    
+    data['mfcc'] = np.array([librosa.feature.mfcc(wav, sr, n_mfcc=32, win_length=window_length, hop_length=hop_length) for wav in wavs])
+    data['mfcc_normalised'] = normaliseFeatures(data['mfcc'])
+    data['mfcc_flattened'] = data['mfcc_normalised'].reshape(data['mfcc_normalised'].shape[0], -1)
+    data['mfcc_max'] = scale(np.max(data['mfcc_normalised'], axis=2))
+    data['mfcc_mean'] = scale(np.mean(data['mfcc_normalised'], axis=2))
+    data['mfcc_std'] = scale(np.std(data['mfcc_normalised'], axis=2))
+    data['mfcc_argmax_time'] = scale(np.argmax(data['mfcc_normalised'], axis=2))
+    data['mfcc_argmax_channel'] = scale(np.argmax(data['mfcc_normalised'], axis=1))
 
 def getConcatenatedFeatures(data, features, verbose=False):
     missing_features = [x for x in features if x not in data.keys()]
@@ -114,39 +113,42 @@ def testClustering(data, features, keep=None):
     print()
     printClusteringResult(clustering, filtered_labels, 'GaussianMixture')
 
+def getFeaturesAndLabels(data, featurenames, labels_filter):
+    if type(data) != list:
+        data = [data]
+    features = [getConcatenatedFeatures(d, featurenames) for d in data]
+    features = np.concatenate(features) # flatten
 
-
-def logRegTrain(data,
-                featurenames=['mfcc_max', 'mfcc_mean'],
-                labels_filter=None,
-                training_sample_count=None,
-                classifier=None):    
-    features = getConcatenatedFeatures(data, featurenames)
-    labels = [x[0] for x in data['keystrokes']]
+    labels = [d['keystroke_labels'] for d in data]
+    labels = sum(labels, []) # flatten
     if labels_filter != None:
         labels = filterLabels(labels, keep=labels_filter)
+
+    return features, labels
+        
+def classifierTrain(data,
+                    featurenames,
+                    classifier=None,
+                    labels_filter=None,
+                    training_sample_count=None):
+    features, labels = getFeaturesAndLabels(data, featurenames, labels_filter)
     
     if training_sample_count == None:
-        test_size = 0
+        train_features, train_labels = features, labels
     else:
         if (training_sample_count > len(labels)):
             raise Exception(f"{training_sample_count} samples to be used for training, but only {len(labels)} samples provided.")
+        # test_size: what proportion of original data is used for test set
         test_size = 1 - (training_sample_count / len(labels))
         print (f"test_size set to {test_size} for roughly {training_sample_count} training samples")
 
-    # test_size: what proportion of original data is used for test set
-    train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=test_size, random_state=0)
+        train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size=test_size, random_state=0)
 
     scaler = StandardScaler()
     # Fit on training set only.
     scaler.fit(train_features)
     # Apply transform to both the training set and the test set.
     train_features = scaler.transform(train_features)
-
-    # all parameters not specified are set to their defaults
-    # default solver is incredibly slow which is why it was changed to 'lbfgs'
-    if classifier == None:
-        classifier = LogisticRegression(solver = 'lbfgs')
 
     classifier.fit(train_features, train_labels)
 
@@ -157,15 +159,12 @@ def logRegTrain(data,
         score = classifier.score(test_features, test_labels)
         return scaler, classifier, score
 
-def logRegTest(scaler,
+def classifierTest(scaler,
                classifier,
                data,
                featurenames=['mfcc_max', 'mfcc_mean'],
                labels_filter=None):
-    features = getConcatenatedFeatures(data, featurenames)
-    labels = [x[0] for x in data['keystrokes']]
-    if labels_filter != None:
-        labels = filterLabels(labels, keep=labels_filter)
+    features, labels = getFeaturesAndLabels(data, featurenames, labels_filter)
 
     features = scaler.transform(features)
     return classifier.score(features, labels)
