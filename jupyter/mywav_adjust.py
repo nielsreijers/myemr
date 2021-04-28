@@ -43,7 +43,7 @@ def getDroppedSamplesTimeAndLength(data, showGraph=False):
     # Transform the list of mark events into a dataframe with a column, samplesDiff,
     # indicating the difference between the actual number of samples and the expected
     # number based on sampling rate and time since the start of the recording.
-    timeAndBufferSize = [(x[1], x[3]) for x in data['recorder_mark_events']]
+    timeAndBufferSize = [(x[1], int(x[3])) for x in data['recorder_mark_events']]
     starttime=timeAndBufferSize[0][0]
     startsize=timeAndBufferSize[0][1]
     times = [t for (t, s) in timeAndBufferSize]

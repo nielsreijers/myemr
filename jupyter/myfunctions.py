@@ -20,7 +20,7 @@ def getData(directory,
     recorder_mark_events = [x for x in events if x[2]=='recorder-mark']
 
     first_mark_at = recorder_mark_events[0][1]
-    first_mark_samples = recorder_mark_events[0][3]
+    first_mark_samples = int(recorder_mark_events[0][3])
     starttime_recorder_mark_event = int(first_mark_at-(first_mark_samples*1000/sr))
     starttime_recorder_start_event = [x for x in events if x[2]=='recorder-start'][0][1]
     
